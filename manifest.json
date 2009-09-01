@@ -1,0 +1,12 @@
+{
+	"name": "sipgateFFX for Google Chrome",
+	"version": "0.5",
+	"description": "sipgate is your fate",
+	"author": "rotmanov@sipgate.de",
+	"permissions": [
+		"http://*.samurai01.dev.sipgate.net/RPC2"
+	],
+	"toolstrips": [
+		"toolstrip.html"
+	]
+}
