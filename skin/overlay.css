@@ -1,0 +1,68 @@
+#sipgateffx-toolbar-button
+{
+  list-style-image: url("chrome://sipgateffx/skin/toolbar-button.png");
+  -moz-image-region: rect(0px 24px 24px 0px);
+}
+#sipgateffx-toolbar-button:hover
+{
+  -moz-image-region: rect(24px 24px 48px  0px);
+}
+[iconsize="small"] #sipgateffx-toolbar-button
+{
+  -moz-image-region: rect( 0px 40px 16px 24px);
+}
+[iconsize="small"] #sipgateffx-toolbar-button:hover
+{
+  -moz-image-region: rect(24px 40px 40px 24px);
+}
+
+#sipgatenotificationPanel
+{
+	-moz-binding: url("chrome://sipgateffx/content/binding-popup.xml#default");
+  	-moz-appearance: none !important;	
+	width: 263px;
+	margin-bottom: -5px;
+}
+
+vbox#sipgatenotificationPanelHeader
+{
+	background: url("chrome://sipgateffx/skin/callprogress_head_green.gif") no-repeat;
+}
+
+#sipgatenotificationPanel vbox#sipgatenotificationPanelMessages
+{
+	background: url('chrome://sipgateffx/skin/callprogress_body.gif') no-repeat;
+	width: 263px;
+	padding-top: 5px;
+}
+
+#sipgatenotificationPanel hbox#sipgatenotificationPanelCommands
+{
+	background: url('chrome://sipgateffx/skin/callprogress_body.gif') no-repeat left bottom;
+	width: 263px;
+}
+
+#sipgateffxEventsCall,
+#sipgateffxEventsSMS,
+#sipgateffxEventsFax
+{
+  background: url("chrome://sipgateffx/skin/events_tos.gif") no-repeat;
+  padding-left: 20px;
+  height: 16px;
+  margin: 0 1px;
+}
+
+#sipgateffxEventsCall
+{
+	background-position: 0px 0px;
+}
+
+#sipgateffxEventsFax
+{
+	background-position: 0px -34px;
+}
+
+#sipgateffxEventsSMS
+{
+	background-position: 0px -67px;
+}

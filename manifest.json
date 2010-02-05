@@ -1,12 +1,20 @@
 {
 	"name": "sipgateFFX for Google Chrome",
 	"version": "0.5",
-	"description": "sipgate is your fate",
+	"description": "sipgate is your fate son",
 	"author": "rotmanov@sipgate.de",
 	"permissions": [
-		"http://*.samurai01.dev.sipgate.net/RPC2"
+		"https://*.api.sipgate.net/RPC2",
+		"https://api.sipgate.net/RPC2"
 	],
-	"toolstrips": [
-		"toolstrip.html"
-	]
+//	"toolstrips": [
+//		"toolstrip.html"
+//	]
+	"background_page": "background.html",
+	"browser_action": {
+		"default_icon": "skin/icon_sipgate_active.gif", // required
+		"default_title": "sipgate for Google",      // optional; shown in tooltip
+		"popup": "toolstrip.html",                // optional
+		"badge": "0,00"
+	}
 }
