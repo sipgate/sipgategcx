@@ -26,3 +26,19 @@ ul.toolstripMenu li {
 ul.toolstripMenu li:hover {
 	background: #eee;
 }
+
+form#form_sendSMS fieldset {
+	margin-top: 5px;
+	background: #eee;
+	border: 1px solid #000;
+}
+
+form#form_sendSMS legend {
+	font-weight: bold;
+}
+
+form#form_sendSMS input[type=text],
+form#form_sendSMS select,
+form#form_sendSMS textarea {
+	width: 100%;
+}

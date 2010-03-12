@@ -4,17 +4,19 @@
 	"description": "sipgate is your fate son",
 	"author": "rotmanov@sipgate.de",
 	"permissions": [
+		"tabs",
 		"https://*.api.sipgate.net/RPC2",
 		"https://api.sipgate.net/RPC2"
 	],
 //	"toolstrips": [
 //		"toolstrip.html"
-//	]
+//	],
+	"options_page": "options.html",
 	"background_page": "background.html",
 	"browser_action": {
-		"default_icon": "skin/icon_sipgate_active.gif", // required
+		"default_icon": "skin/icon_sipgate_inactive.gif", // required
 		"default_title": "sipgate for Google",      // optional; shown in tooltip
 		"popup": "toolstrip.html",                // optional
-		"badge": "0,00"
+		"badge": "0"
 	}
 }

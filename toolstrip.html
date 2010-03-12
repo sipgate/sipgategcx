@@ -6,6 +6,7 @@
 	<link rel="stylesheet" type="text/css" href="toolstrip.css">
 	</head>
 	<body onload="doOnLoad()">
+	
 		<div id="notLoggedIn">
 			<img src="skin/icon_sipgate_inactive.gif" title="not logged in" />
 			Username: <input id="username" type="text">  
@@ -13,25 +14,46 @@
 			<input type="button" id="login" value="Login" onclick="login(true)">
 		</div>
 
-		<div id="loggedIn" class="view_template toolstrip-button">
-			<img src="skin/icon_sipgate_active.gif" title="sipgate"/>
-			Actual balance: <span id="balance"></span>
+		<div id="menu" class="view_template">
+			<ul class="toolstripMenu">
+				<li>Actual balance: <span id="balance"></span></li>
+				<li class="view_template">Dial a phone numer...</li>
+				<li><a href="#" id="sendSMS">Send a text message...</a></li>
+				<li class="view_template">Send fax</li>
+				<li class="view_template">Show inbox</li>
+				<li class="view_template">Credit account</li>
+				<li class="view_template">Check voicemail</li>
+				<li class="view_template">Show contacts</li>
+				<li class="view_template">Itemized call list</li>
+				<li class="view_template">Refresh balance</li>
+				<li class="view_template">Preferences</li>
+				<li class="view_template">Log out</li>
+			</ul>
 		</div>
-		<span id="msg"></span>
 		
-		<ul class="toolstripMenu">
-			<li></li>
-			<li>Dial a phone numer...</li>
-			<li>Send a text message...</li>
-			<li>Send fax</li>
-			<li>Show inbox</li>
-			<li>Credit account</li>
-			<li>Check voicemail</li>
-			<li>Show contacts</li>
-			<li>Itemized call list</li>
-			<li>Refresh balance</li>
-			<li>Preferences</li>
-			<li>Log out</li>
-		</ul>
+		<div id="page_sendSMS" class="view_template">
+			<form id="form_sendSMS">
+				<fieldset>
+					<legend>Number</legend>
+					<input id="sendSMS_number" type="text">
+				</fieldset>
+				<fieldset>
+					<legend>Text</legend>
+					<textarea id="sendSMS_text" rows="" cols=""></textarea>
+				</fieldset>
+				<fieldset>
+					<legend>Sender number</legend>
+					<select><option>sipgate</option></select>
+				</fieldset>
+				<fieldset>
+					<legend>Scheduled</legend>
+					<input type="checkbox"> Send later
+				</fieldset>
+				<button>Cancel</button>
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+		
+		
 	</body>
 </html>
