@@ -18,5 +18,12 @@
 		"default_title": "sipgate for Google",      // optional; shown in tooltip
 		"popup": "toolstrip.html",                // optional
 		"badge": "0"
-	}
+	},
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"css": ["bla.css"],
+			"js": ["bla.js"]
+		}
+	]
 }

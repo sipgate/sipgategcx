@@ -26,10 +26,10 @@
 	};
 	
 	var curBalance;
-	 
+		
 	function doOnLoad()
 	{
-	    	username = localStorage.getItem('username');
+    	username = localStorage.getItem('username');
 		password = localStorage.getItem('password');
 //		console.debug('username: ' + username + " & password: " + password);
 		if(username != null && password != null)
@@ -166,11 +166,9 @@
 						{
 							failureCallback(xhr);
 						}							
-					},
+					}
 					}).send();
 	}
-
-	
 	
 	function niceNumber (_number) {
 		try {
@@ -225,3 +223,5 @@
 		}
 		return _number;
 	}
+
+	
