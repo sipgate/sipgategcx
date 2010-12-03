@@ -1,9 +1,9 @@
 {
 	"name": "sipgateFFX for Google Chrome",
 	"version": "0.5",
-	"description": "sipgate is your fate son",
+	"description": "merge communication with your browser",
 	"author": "rotmanov@sipgate.de",
-	"default_locale": "en",
+	"default_locale": "de",
 	"permissions": [
 	    "notifications",
 		"tabs",
