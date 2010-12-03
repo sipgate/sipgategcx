@@ -1,5 +1,6 @@
 	var username = null;
 	var password = null;
+	var loggedin = false;
 	var userCountryPrefix = '49';
 	var internationalPrefixes = {
 		"1": ["^011","^\\+"],
@@ -29,9 +30,9 @@
 		
 	function doOnLoad()
 	{
+//		chrome.browserAction.setBadgeText({text: "foo"});
     	username = localStorage.getItem('username');
 		password = localStorage.getItem('password');
-//		console.debug('username: ' + username + " & password: " + password);
 		if(username != null && password != null)
 		{
 			login();
@@ -40,17 +41,23 @@
 	
 	function login(force)
 	{
+		if(loggedin == true) {
+			return;
+		}
 		var onSuccess = function(res) {
 			if (res.StatusCode && res.StatusCode == 200) {
+				loggedin = true;
 				getBalance();
 				// getTosList();
 				getRecommendedIntervals();
 
-		    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
-				
+	    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
+	    		notifyViews('loggedin');
+  		
 				sipgateCredentials = res;
+			} else {
+				notifyViews('loggedinFailed');
 			}
-			// $('msg').set('text', JSON.encode(res));
 		};
 		
 		_rpcCall("samurai.ServerdataGet", null, onSuccess);
@@ -98,7 +105,7 @@
 				
 				curBalance = [balanceValueString + " " + currency, balanceValueDouble];
 				console.log(curBalance);
-
+	    		notifyViews('balance');
 			}
 			
 			/*
@@ -122,18 +129,20 @@
 	}		
 	
 	
-	function sendSMS(number, text) {
-
-	    	var onSuccess = function(res) {
-		    console.log('DONE');
-		};
-
+	function sendSMS(number, text)
+	{
 		var remoteUri = "sip:"+ niceNumber(number) +"\@sipgate.net";
 		var params = { 'RemoteUri': remoteUri, 'TOS': "text", 'Content': text };
 		
-		console.log(params);
-		return;
-		
+    	var onSuccess = function(res) {
+    		console.log(res);
+			if (res.StatusCode && res.StatusCode == 200) {
+				notifyViews('smsSentSuccess');
+			} else {
+				notifyViews('smsSentFailed');
+			}
+		};
+
 		_rpcCall("samurai.SessionInitiate", params, onSuccess);
 	}		
 	
@@ -224,4 +233,12 @@
 		return _number;
 	}
 
+	function notifyViews(evnt) {
+		chrome.extension.getViews().forEach(function(view) {
+	        if(typeof(view['receiveMessage']) == 'function') {
+		        view.receiveMessage(evnt);
+	        }
+		});
+	}
+	
 	

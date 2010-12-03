@@ -8,30 +8,39 @@
 	<body onload="doOnLoad()">
 	
 		<div id="notLoggedIn">
-			<img src="skin/icon_sipgate_inactive.gif" title="not logged in" />
-			Username: <input id="username" type="text">  
-			Password: <input id="password" type="password">
-			<input type="button" id="login" value="Login" onclick="login(true)">
+			<div id="sipgatelogo">
+				<img src="skin/sipgate_logo.gif" title="not logged in" id="sipgatelogo" />
+			</div>
+			<form action="" method="post" id="standardlogin">
+				<label for="username">E-Mail:</label>
+				<input class="formelement" type="text" name="username" id="username"><br>
+				<label for="password">Passwort:</label>
+				<input class="formelement" type="password" name="password" id="password">
+				<input type="button" id="login" value="Jetzt einloggen!">
+			</form>
 		</div>
 
 		<div id="menu" class="view_template">
 			<ul class="toolstripMenu">
 				<li>Actual balance: <span id="balance"></span></li>
 				<li class="view_template">Dial a phone numer...</li>
-				<li><a href="#" id="sendSMS">Send a text message...</a></li>
+				<li class="linkAlike" id="sendSMS">Send a text message...</li>
 				<li class="view_template">Send fax</li>
 				<li class="view_template">Show inbox</li>
 				<li class="view_template">Credit account</li>
 				<li class="view_template">Check voicemail</li>
 				<li class="view_template">Show contacts</li>
 				<li class="view_template">Itemized call list</li>
-				<li class="view_template">Refresh balance</li>
+				<li class="linkAlike" id="refresh_balance">Refresh balance</li>
 				<li class="view_template">Preferences</li>
-				<li class="view_template">Log out</li>
+				<li class="linkAlike" id="logout">Log out</li>
 			</ul>
 		</div>
 		
 		<div id="page_sendSMS" class="view_template">
+			<div id="sendSMS_sending" class="view_template">SMS wird verschickt...</div>
+			<div id="sendSMS_success" class="view_template">SMS wurde erfolgreich verschickt.</div>
+			<div id="sendSMS_failed" class="view_template">SMS konnte nicht verschickt werden.</div>
 			<form id="form_sendSMS">
 				<fieldset>
 					<legend>Number</legend>
@@ -49,8 +58,8 @@
 					<legend>Scheduled</legend>
 					<input type="checkbox"> Send later
 				</fieldset>
-				<button>Cancel</button>
-				<button type="submit">Submit</button>
+				<button type="submit">Send SMS</button>
+				<a href="javascript:;" id="form_sendSMS_cancel">Cancel</a>
 			</form>
 		</div>
 		

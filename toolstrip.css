@@ -1,8 +1,7 @@
 body {
-	font-family: Arial, Helvetica, sans-serif;
+	background: #f7f7f7;
+	font-family: Arial, Tahoma, Verdana, Helvetica, sans-serif;
 	font-size: 10pt;
-	padding: 0;
-	margin: 0;
 	width: 250px;
 }
 
@@ -23,6 +22,11 @@ ul.toolstripMenu li {
 	margin: 0;
 }
 
+ul.toolStripMenu li.linkAlike {
+	color: blue;
+	cursor: pointer;
+}
+
 ul.toolstripMenu li:hover {
 	background: #eee;
 }
@@ -41,4 +45,33 @@ form#form_sendSMS input[type=text],
 form#form_sendSMS select,
 form#form_sendSMS textarea {
 	width: 100%;
+}
+
+div#notLoggedIn label {
+	font-weight: bold;
+}
+
+div#notLoggedIn div#sipgatelogo {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+div#notLoggedIn input.formelement {
+	width: 230px;
+	border: 1px solid #CCC;
+	color: black;
+	margin-bottom: 15px;
+	-webkit-box-shadow: inset 2px 2px 5px -2px black;
+	padding: 2px 5px; 
+}
+
+div#notLoggedIn input#login {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffb76b), color-stop(50%,#ffa73d), color-stop(51%,#ff7c00), color-stop(100%,#ff7f04)); /* webkit */
+	width: 230px;
+	color: #FFF;
+	font-weight: bold;
+	-webkit-border-radius: 3px;
+	height: 35px;
+	font-size: 16px;
+	border: 1px solid #aaa;
 }
