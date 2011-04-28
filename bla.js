@@ -263,30 +263,37 @@ function _prepareArray() {
 
 _prepareArray();
 
-try {
-	var doc = document;
-	var body = doc.body;
-	
-	if (!body || body.className.match(/editable/)) {
-		alert("NO BODY FOUND");
-		return;
+startRendering();
+
+function startRendering()
+{
+	try {
+		var doc = document;
+		var body = doc.body;
+		
+		if (!body || body.className.match(/editable/)) {
+			alert("NO BODY FOUND");
+			return;
+		}
+		
+		var metaItems = doc.getElementsByTagName('meta');  
+		for (var i=0; i<metaItems.length; i++)
+		{
+			if (metaItems[i].getAttribute('name') == "sipgateffx_click2dial") return 1;
+		}
+		
+		var headItems = doc.getElementsByTagName('head');
+		if (headItems.length) 
+		{
+			var webphoneMetaItem = doc.createElement("meta");
+			webphoneMetaItem.setAttribute("name","sipgateffx_click2dial");
+			webphoneMetaItem.setAttribute("value","enabled");
+			headItems[0].appendChild(webphoneMetaItem);
+		}
+		setTimeout(sipgateffxParseDOM, 0, body, doc);
+	} catch(e) {
+		alert("sipgategcx: error occured... " + e);
 	}
-	
-	var metaItems = doc.getElementsByTagName('meta');  
-	for (var i=0; i<metaItems.length; i++)
-		if (metaItems[i].getAttribute('name') == "sipgateffx_click2dial") return;
-	
-	var headItems = doc.getElementsByTagName('head');
-	if (headItems.length) 
-	{
-		var webphoneMetaItem = doc.createElement("meta");
-		webphoneMetaItem.setAttribute("name","sipgateffx_click2dial");
-		webphoneMetaItem.setAttribute("value","enabled");
-		headItems[0].appendChild(webphoneMetaItem);
-	}
-	setTimeout(sipgateffxParseDOM, 0, body, doc);
-} catch(e) {
-	alert("sipgategcx: error occured... " + e);
 }
 
 function sipgateffxParseDOM(aNode, document)

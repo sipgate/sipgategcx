@@ -8,11 +8,9 @@
 	    "notifications",
 		"tabs",
 		"http://api.dev.sipgate.net/RPC2",
-		"https://api.sipgate.net/RPC2"
+		"https://api.sipgate.net/RPC2",
+		"https://*.sipgate.de/format/do/info/*"
 	],
-//	"toolstrips": [
-//		"toolstrip.html"
-//	],
 	"options_page": "options.html",
 	"background_page": "background.html",
 	"browser_action": {

@@ -13,7 +13,7 @@
 		"SipRegistrar": "sipgate.de",
 		"NtpServer": "ntp.sipgate.net",
 		"HttpServer": "www.live.sipgate.de",
-		"SipOutboundProxy": "proxy.dev.sipgate.de",
+		"SipOutboundProxy": "proxy.sipgate.de",
 		"XmppServer": "",
 		"StunServer": "stun.sipgate.net",
 		"SamuraiServer": "api.sipgate.net",
@@ -44,6 +44,8 @@
 		if(loggedin == true) {
 			return;
 		}
+		chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
+		
 		var onSuccess = function(res) {
 			if (res.StatusCode && res.StatusCode == 200) {
 				loggedin = true;
@@ -58,6 +60,10 @@
 			} else {
 				notifyViews('loggedinFailed');
 			}
+		};
+		
+		var onFail = function(xhr) {
+			chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});
 		};
 		
 		_rpcCall("samurai.ServerdataGet", {}, onSuccess);
@@ -146,8 +152,6 @@
 		_rpcCall("samurai.SessionInitiate", params, onSuccess);
 	}		
 	
-	
-
 	function _rpcCall(method, params, successCallback, failureCallback)
 	{
 		var msg = new XmlRpcRequest('', method);
@@ -155,13 +159,15 @@
 		{
 			msg.addParam(params);
 		}
+//		var server = "https://api.sipgate.net/RPC2";
+		var server = "http://api.dev.sipgate.net/RPC2";
 		var xml = msg.parseXML();
 		new Request({ 
-					//url: 'https://' + encodeURIComponent(username) + ":" + encodeURIComponent(password) + '@api.sipgate.net/RPC2', 
-					url: 'http://' + encodeURIComponent(username) + ":" + encodeURIComponent(password) + '@api.dev.sipgate.net/RPC2', 
+					url: server, 
 					headers: {
 						'Accept': 'text/javascript, text/html, application/xml, text/xml, */*',
-						'Content-Type': 'text/xml; charset=UTF-8'
+						'Content-Type': 'text/xml; charset=UTF-8',
+						'Authorization': 'Basic ' + btoa(username + ':' + password)
 					},
 					data: xml,
 					onSuccess: function(resText, resXML) {

@@ -24,7 +24,11 @@ var SMSEditor = {
 	
 	init: function() {
 	    $('sendSMS_number').focus();
-	    if(eventsAdded) return;
+	    if(this.eventsAdded) return;
+	    
+	    if($('sendSMS_number')) {
+	    	$('sendSMS_number').addEvent('blur', this.onNumberFieldLeave.bind(this));
+	    }
 	    
 		if($('form_sendSMS')) {
 			$('form_sendSMS').addEvent('submit', this.onSendClick.bind(this));
@@ -33,27 +37,40 @@ var SMSEditor = {
 		if($('form_sendSMS_cancel')) {
 			$('form_sendSMS_cancel').addEvent('click', this.close.bind(this));				
 		}
-		
+
+		this.eventsAdded = true;
 		
 	},
 	
 	getNumber: function() {
-		return $('sendSMS_number').get('value');
+		return $('sendSMS_number').get('value').trim();
 	},
 	
 	getText: function() {
-		return $('sendSMS_text').get('value');
+		return $('sendSMS_text').get('value').trim();
+	},
+	
+	onNumberFieldLeave: function() {
+		var number = this.getNumber();
+		if(number != "" && number.length > 4)
+		{
+			formatNumber(number, function(formatted) {
+				if(formatted && formatted[number] && formatted[number]['local']) {
+					$('sendSMS_number').set('value', formatted[number]['local']);
+				}
+			});
+		}		
 	},
 	
 	onSendClick: function(evnt) {
 	    evnt.stop();
 	    var number = this.getNumber();
 	    var text = this.getText();
-	    if(number.trim() == '' || number.match(/^\d*$/) == null) {
+	    if(number == '' || number.match(/^[\d_\-\(\)\ ]*$/) == null) {
 			alert(chrome.i18n.getMessage("smsMissingNumber"));
 	    	return;
 	    }
-	    if(text.trim() == '') {
+	    if(text == '') {
 			alert(chrome.i18n.getMessage("smsMissingText"));
 	    	return;
 	    }
@@ -134,7 +151,6 @@ var page = {
 			localStorage.setItem('username', bgr.username);
 			localStorage.setItem('password', bgr.password);
 		}
-		chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
 		bgr.login(true);		
 	},
 	
@@ -191,4 +207,33 @@ function receiveMessage(e) {
 			console.log('Event handling not found for event: ' + e);
 			break;
 	}
+}
+
+
+function formatNumber(number, callback) {
+	// https://secure.live.sipgate.de/format/do/info/
+	if(!number.match(/\d/)) {
+		if(typeof(callback) == 'function') {
+			callback({'error':true});
+		}
+		return;
+	}
+	number = encodeURIComponent(number.trim());
+	var url = bgr.sipgateCredentials.HttpServer.replace(/^www/, 'secure');
+	url = 'https://' + url + '/format/do/info/domain/sipgate.de/number/'+number;
+	new Request.JSON({
+		'url': url,
+		onSuccess: function(data) {
+			if(typeof(callback) == 'function') {
+				callback(data);
+			} else {
+//				console.log(data);
+			}
+		}.bind(this),
+		onFailure: function(data) {
+			if(typeof(callback) == 'function') {
+				callback({'error':true});
+			} else return data;
+		} 
+	}).get();		
 }
