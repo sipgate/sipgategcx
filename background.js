@@ -60,7 +60,7 @@
 			}
 		};
 		
-		_rpcCall("samurai.ServerdataGet", null, onSuccess);
+		_rpcCall("samurai.ServerdataGet", {}, onSuccess);
 	}
 
 	function getRecommendedIntervals() {
@@ -156,7 +156,9 @@
 			msg.addParam(params);
 		}
 		var xml = msg.parseXML();
-		new Request({ url: 'https://' + encodeURIComponent(username) + ":" + encodeURIComponent(password) + '@api.sipgate.net/RPC2', 
+		new Request({ 
+					//url: 'https://' + encodeURIComponent(username) + ":" + encodeURIComponent(password) + '@api.sipgate.net/RPC2', 
+					url: 'http://' + encodeURIComponent(username) + ":" + encodeURIComponent(password) + '@api.dev.sipgate.net/RPC2', 
 					headers: {
 						'Accept': 'text/javascript, text/html, application/xml, text/xml, */*',
 						'Content-Type': 'text/xml; charset=UTF-8'

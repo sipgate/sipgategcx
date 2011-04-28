@@ -1,13 +1,13 @@
 {
-	"name": "sipgateFFX for Google Chrome",
+	"name": "__MSG_extTitle__",
 	"version": "0.5",
-	"description": "merge communication with your browser",
+	"description": "__MSG_extDescription__",
 	"author": "rotmanov@sipgate.de",
 	"default_locale": "de",
 	"permissions": [
 	    "notifications",
 		"tabs",
-		"https://*.api.sipgate.net/RPC2",
+		"http://api.dev.sipgate.net/RPC2",
 		"https://api.sipgate.net/RPC2"
 	],
 //	"toolstrips": [
@@ -17,7 +17,7 @@
 	"background_page": "background.html",
 	"browser_action": {
 		"default_icon": "skin/icon_sipgate_inactive.gif", // required
-		"default_title": "sipgate for Google",      // optional; shown in tooltip
+		"default_title": "__MSG_extTitle__",      // optional; shown in tooltip
 		"popup": "toolstrip.html"                // optional
 	},
 	"content_scripts": [

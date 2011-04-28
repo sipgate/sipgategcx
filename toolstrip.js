@@ -12,44 +12,121 @@ var DisplayManager = {
 	smseditor: function() {
 		$('notLoggedIn').addClass('view_template');
 		$('menu').addClass('view_template');	
-		$('page_sendSMS').removeClass('view_template');	
+		$('page_sendSMS').removeClass('view_template');
+		SMSEditor.init();
 	}
+
+
 };
 
-var bgr = chrome.extension.getBackgroundPage();
-
-function doOnLoad()
-{	
-	$('sendSMS').addEvent('click', function() {
-		DisplayManager.smseditor();
-	    $('sendSMS_number').focus();
-	});
+var SMSEditor = {
+	eventsAdded: false,
 	
-	$('form_sendSMS').addEvent('submit', function(evnt) {
+	init: function() {
+	    $('sendSMS_number').focus();
+	    if(eventsAdded) return;
+	    
+		if($('form_sendSMS')) {
+			$('form_sendSMS').addEvent('submit', this.onSendClick.bind(this));
+		}
+
+		if($('form_sendSMS_cancel')) {
+			$('form_sendSMS_cancel').addEvent('click', this.close.bind(this));				
+		}
+		
+		
+	},
+	
+	getNumber: function() {
+		return $('sendSMS_number').get('value');
+	},
+	
+	getText: function() {
+		return $('sendSMS_text').get('value');
+	},
+	
+	onSendClick: function(evnt) {
 	    evnt.stop();
-	    var number = $('sendSMS_number').get('value');
-	    var text = $('sendSMS_text').get('value');
+	    var number = this.getNumber();
+	    var text = this.getText();
 	    if(number.trim() == '' || number.match(/^\d*$/) == null) {
-	    	alert("Sie muessen eine gueltige Nummer angeben.\nSMS-Versand abgebrochen.");
+			alert(chrome.i18n.getMessage("smsMissingNumber"));
 	    	return;
 	    }
 	    if(text.trim() == '') {
-	    	alert("Sie muessen Text zum Versenden eingeben.\nSMS-Versand abgebrochen.");
+			alert(chrome.i18n.getMessage("smsMissingText"));
 	    	return;
 	    }
 	    $('form_sendSMS').addClass('view_template');
 	    $('sendSMS_sending').removeClass('view_template');
-    	bgr.sendSMS(number, text);
-	});
+    	bgr.sendSMS(number, text);			
+	},
 	
-	$('form_sendSMS_cancel').addEvent('click', DisplayManager.menu);
-	$('refresh_balance').addEvent('click', function() {
-		$('balance').set('text', '...wait...');
-		bgr.getBalance();
-	});
+	onSentSuccess: function() {
+	    $('sendSMS_sending').addClass('view_template');
+	    $('sendSMS_success').removeClass('view_template');
+	    DisplayManager.menu.delay(2000);
+	},
+	
+	onSentFail: function() {
+	    $('form_sendSMS').removeClass('view_template');
+	    $('sendSMS_sending').addClass('view_template');
+	    $('sendSMS_failed').removeClass('view_template');
+	},
+	
+	close: function() {
+		DisplayManager.menu();
+	}
+};
 
-	$('login').addEvent('click', function(evnt) {
+var toolStripEvents = {
+	sendSMS: function() {
+		DisplayManager.smseditor();
+	}
+};
+
+var page = {
+	init: function() {
+		this.addLoginEvent();
+		this.addToolstripMenuEvents();
+		this.checkForLogin();
+	},
+	
+	checkForLogin: function() {
+		if(bgr.username != null && bgr.password != null)
+		{
+			if(bgr.loggedin == true) {
+				receiveMessage('loggedin');
+				receiveMessage('balance');
+			} else {
+				bgr.login();
+			}
+		}
+	},
+	
+	addLoginEvent: function() {
+		if($('login')) {
+			$('login').addEvent('click', this.loginAction.bind(this));
+		}
+	},
+	
+	addToolstripMenuEvents: function() {
+		if($('sendSMS')) {
+			$('sendSMS').addEvent('click', toolStripEvents.sendSMS);
+		}
+		if($('logout')) {
+			$('logout').addEvent('click', this.logoutAction.bind(this));
+		}
+	},
+	
+	loginAction: function(evnt) {
 		evnt.stop();
+		if($('username').get('value').trim() == "" && $('password').get('value').trim() == "")
+		{
+			alert(chrome.i18n.getMessage("enterCredentials"));
+			return;
+		}
+		
 		if(bgr.username == null || bgr.password == null)
 		{
 			bgr.username = $('username').get('value');
@@ -57,10 +134,11 @@ function doOnLoad()
 			localStorage.setItem('username', bgr.username);
 			localStorage.setItem('password', bgr.password);
 		}
-		bgr.login(true);
-	});
+		chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
+		bgr.login(true);		
+	},
 	
-	$('logout').addEvent('click', function(evnt) {
+	logoutAction: function(evnt) {
 		evnt.stop();
 		localStorage.removeItem('username');
 		localStorage.removeItem('password');
@@ -69,18 +147,29 @@ function doOnLoad()
 		bgr.loggedin = false;
 		DisplayManager.notloggedin();
 		chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});		
-	});
+	},
 	
-	
-	if(bgr.username != null && bgr.password != null)
-	{
-		if(bgr.loggedin == true) {
-			receiveMessage('loggedin');
-			receiveMessage('balance');
-		} else {
-			bgr.login();
-		}
+	showBalance: function(balance) {
+		console.log(balance);
+		$('balance').set('text', balance[0]);
+		
+		if(balance[1] < 5.0) {
+			$('balance').set('styles', {'color':'red'});
+		}		
 	}
+};
+
+
+var bgr = chrome.extension.getBackgroundPage();
+
+function doOnLoad()
+{
+	page.init();
+	
+	$('refresh_balance').addEvent('click', function() {
+		$('balance').set('text', '...wait...');
+		bgr.getBalance();
+	});
 	
 }
 
@@ -90,22 +179,13 @@ function receiveMessage(e) {
 			DisplayManager.menu();
 			break;
 		case 'balance':
-			console.log(bgr.curBalance);
-			$('balance').set('text', bgr.curBalance[0]);
-			
-			if(bgr.curBalance[1] < 5.0) {
-				$('balance').set('styles', {'color':'red'});
-			}
+			page.showBalance(bgr.curBalance);
 			break;
 		case 'smsSentSuccess':
-		    $('sendSMS_sending').addClass('view_template');
-		    $('sendSMS_success').removeClass('view_template');
-		    DisplayManager.menu.delay(2000);
+			SMSEditor.onSentSuccess();
 			break;
 		case 'smsSentFailed':
-		    $('form_sendSMS').removeClass('view_template');
-		    $('sendSMS_sending').addClass('view_template');
-		    $('sendSMS_failed').removeClass('view_template');
+			SMSEditor.onSentFail();
 		    break;
 		default:
 			console.log('Event handling not found for event: ' + e);
