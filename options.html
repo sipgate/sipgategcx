@@ -2,13 +2,58 @@
 	<head>
 	<script type="text/javascript" src="mootools.js"></script>
 	<script type="text/javascript" src="mimic.js"></script>
-	<script type="text/javascript" src="toolstrip.js"></script>
 	<link rel="stylesheet" type="text/css" href="toolstrip.css">
+	<style type="text/css">
+#page {
+	background-color: white;
+	margin-left: auto;
+	margin-right: auto;
+	width: 400px;
+}
+	</style>
 	</head>
 	<body>
-
-		<h1>sipgate for Google - Options</h1>
-		<p> to be done</p>
-		
+		<div id="page">
+			<h1>sipgate for Google - Options</h1>
+			
+			<div class="tab">
+				<div class="tabHead">Account</div>
+				<div class="tabContent">
+					Username: <input type="text">
+					Password: <input type="text">
+					<input type="checkbox" id="autologin"> Auto-Login
+					
+					<input type="checkbox" id="showbalance"> Don't show balance
+					
+					<a href="whatsnew.html">What's new in this version?</a>
+					
+				</div>
+			</div>
+			
+			<div class="tab">
+				<div class="tabHead">click2dial</div>
+				<div class="tabContent">
+					<input type="checkbox" id="previewnumber"> Edit phone number before dialing
+					<input type="checkbox" id="c2denabled">  Enable click2dial on phone numbers
+					<input type="color"> Color for click2dial highlightning
+					
+					Click2Dial-Phone
+					<select id="defaultextension">
+						<option></option>
+					</select>				
+				</div>
+			</div>
+			
+			<div class="tab">
+				<div class="tabHead">click2dial blacklist</div>
+				<div class="tabContent">
+						Following domains are excluded from automatic phone number detection:
+						<select size="6">
+							<option>sipgate.de</option>
+						</select>
+						<button>Remove</button>			
+				</div>
+			</div>
+		</div>	
 	</body>
 </html>

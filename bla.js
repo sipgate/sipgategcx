@@ -397,8 +397,9 @@ function sipgateffxCheckPhoneNumber(aNode)
             spanNode.className = 'sipgateFFXClick2DialBubble';
 	        spanNode.title = "sipgate Click2Dial for " +  prettyNumber + (country ? ' ('+country+')' : '');
 	        
-	        spanNode.addEventListener("click", sipgateffxCallClick, true);
-	        spanNode.addEventListener("contextmenu", sipgateffxCallRightClick, true);
+	        spanNode.addEventListener("click", sipgateffxCallClick);
+	        //spanNode.addEventListener("click", sipgateffxCallClick, true);
+	        //spanNode.addEventListener("contextmenu", sipgateffxCallRightClick, true);
 	        
         	spanNode.setAttribute("sipgateffx_number", number);
 
@@ -469,8 +470,7 @@ function sipgateffxCallClick(e)
 		e.preventDefault();
 	    var number = this.getAttribute("sipgateffx_number");
 	    if (!number) return;
-	    var _niceNumber = niceNumber(number);
-	    chrome.extension.sendRequest({click2dial: _niceNumber});
+	    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
 	    /*
 		if (sgffx.getPref("extensions.sipgateffx.previewnumber", "bool")) {
 			window.openDialog('chrome://sipgateffx/content/previewnumber.xul', 'sipgatePreviewnumber', 'chrome,centerscreen,resizable=no,titlebar=yes,alwaysRaised=yes', '+'+niceNumber);

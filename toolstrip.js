@@ -203,12 +203,20 @@ function receiveMessage(e) {
 		case 'smsSentFailed':
 			SMSEditor.onSentFail();
 		    break;
+		case 'c2dStartSuccess':
+			chrome.browserAction.setIcon({path:"skin/c2d_wait.gif"});		
+			break;
+		case 'c2dStartFail':
+			chrome.browserAction.setIcon({path:"skin/c2d_failed.gif"});		
+			break;
+		case 'c2dEnd':
+    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
+			break;
 		default:
 			console.log('Event handling not found for event: ' + e);
 			break;
 	}
 }
-
 
 function formatNumber(number, callback) {
 	// https://secure.live.sipgate.de/format/do/info/
