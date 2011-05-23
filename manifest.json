@@ -4,6 +4,11 @@
 	"description": "__MSG_extDescription__",
 	"author": "rotmanov@sipgate.de",
 	"default_locale": "de",
+	"icons": {
+		"16": "skin/sipgate_16x16.png",
+		"48": "skin/sipgateffx_logo.png",
+		"128": "skin/sipgateapp-128x128.png"
+	},
 	"permissions": [
 	    "notifications",
 		"tabs",

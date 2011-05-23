@@ -81,7 +81,6 @@ var backgroundProcess = {
 
 		_rpcCall("samurai.SessionInitiate", params, onSuccess);		
 	},
-	
 
 	getClick2DialStatus: function() {
 		console.log(this);
@@ -186,7 +185,19 @@ var backgroundProcess = {
 		} catch (e) {
 			console.log('§&1!!: Exception: ' + e);
 		}
+	},
+
+	setCredentials: function(_username, _password) {
+		if(_username.trim() != "" && _password.trim() != "") {
+			username = _username;
+			password = _password;
+			loggedin = false;
+			login();
+			console.log("Credentials set");
+			console.log(loggedin);
+		}
 	}
+
 };
 
 var backgroundHelper = {
@@ -227,6 +238,89 @@ var backgroundHelper = {
 	    }
 	
 	    return tmp_arr.join('');
+	}
+};
+
+var restApi = {
+	url: 'http://api.dev.sipgate.net',
+	
+	voicemail: {
+		url: 'my/events/voicemails',
+		version: "2.30",
+		interval: 180 * 1000,
+		lastId: null
+	},
+	
+	getNewVoicemails: function() {
+		var callback = this.response.parseVoicemailResult;
+		if(this.voicemail.lastId == null) {
+		//	callback = this.response.setInitialVoicemailId;
+		}
+		this._get(this.voicemail.url, this.voicemail.version, callback.bind(this));
+	},
+	
+	response: {
+		setInitialVoicemailId: function(res) {
+			if(!res || !res['events'] || !res['events']['voicemails']) return;
+			if(res['events']['voicemails'].length > 0) {
+				this.voicemail.lastId = res['events']['voicemails'][0].id;
+			} else {
+				this.voicemail.lastId = 1;
+			}
+			this.getNewVoicemails.delay(this.voicemail.interval);
+		},
+		
+		parseVoicemailResult: function(res) {
+			if(!res || !res['events'] || !res['events']['voicemails']) return;
+			if(res['events']['voicemails'].length > 0 && res['events']['voicemails'][0].id > this.voicemail.lastId) {
+				var counter = 0;
+				for (var i = 0, l = res['events']['voicemails'].length; i < l; i++) {
+					console.log(res['events']['voicemails'][i]);
+					if(res['events']['voicemails'][i].id > this.voicemail.lastId) {
+						counter++;
+					} else {
+						break;
+					}
+				}
+				this.voicemail.lastId = res['events']['voicemails'][0].id;
+				var title = "You have " + counter + " new voicemails";
+				var text = "To read it, go to sipgate.com!";
+				if(counter == 1 && res['events']['voicemails'][0].transcription) {
+					text = res['events']['voicemails'][0].transcription;
+				}
+				webkitNotifications.createNotification(
+						  'skin/sipgateffx_logo.png',
+						  title,
+						  text
+				).show();
+			}
+			this.getNewVoicemails.delay(this.voicemail.interval);
+		}
+	},
+	
+	_get: function _restCall(url, version, successCallback, failureCallback)
+	{
+		var server = "http://api.dev.sipgate.net/"+ url +"/?version="+ version +"&complexity=full";
+		new Request.JSON({ 
+			method: 'get',
+			url: server, 
+			headers: {
+				'Authorization': 'Basic ' + btoa(username + ':' + password)
+			},
+			onSuccess: function(res) {
+				if(typeof successCallback == 'function')
+				{
+					successCallback(res);
+				}						
+			},
+			onFailure: function(xhr) {
+				console.log("BAD" + xhr.status);
+				if(typeof failureCallback == 'function')
+				{
+					failureCallback(xhr);
+				}							
+			}
+		}).send();
 	}
 };
 
@@ -273,7 +367,7 @@ var backgroundHelper = {
 	
 	function login(force)
 	{
-		if(loggedin == true) {
+		if(loggedin == true && !force) {
 			return;
 		}
 		chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
@@ -299,7 +393,7 @@ var backgroundHelper = {
 			chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});
 		};
 		
-		_rpcCall("samurai.ServerdataGet", {}, onSuccess);
+		_rpcCall("samurai.ServerdataGet", {}, onSuccess, onFail);
 	}
 
 	function clientIdentify() {
@@ -473,6 +567,7 @@ var backgroundHelper = {
 
 	function _rpcCall(method, params, successCallback, failureCallback)
 	{
+		console.log(method);
 		var msg = new XmlRpcRequest('', method);
 		if(typeof params != 'undefined' && params != null)
 		{

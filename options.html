@@ -2,58 +2,190 @@
 	<head>
 	<script type="text/javascript" src="mootools.js"></script>
 	<script type="text/javascript" src="mimic.js"></script>
-	<link rel="stylesheet" type="text/css" href="toolstrip.css">
+	<script type="text/javascript" src="options.js"></script>
 	<style type="text/css">
-#page {
+body {
+	background-color: black;
+	margin:0;
+	padding:0;
+	font-family: Arial, sans-serif;
+	font-size:14px;
+	overflow:hidden;
+}
+.hidden {
+	visibility: hidden;
+	display: none;
+}
+#l {
+	color: #001F56;
+	width: 250px;
+	height: 100%;
+	float:left;
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#bbd4ff), color-stop(97%,#bbd4ff), color-stop(100%,#aaaaaa));
+	border-right: 1px solid #bbb;
+}
+#l h1 {
+	font-size:180%;
+	font-weight: normal;
+	padding: 15px 15px 15px 0;
+	margin: 0 5px;
+	border-bottom: 1px solid #5C8EE6;
+	text-align: right;
+	text-shadow: 1px 1px 1px #fff;
+}
+#l ul.tabs {
+	list-style: none;
+	padding: 0;
+}
+#l ul.tabs li {
+	font-size: 110%;
+	text-align: right;
+	padding: 7px 24px 7px 7px;
+	border-top: 1px solid transparent;
+	border-bottom: 1px solid transparent;
+}
+#l ul.tabs li:hover {
+	cursor: pointer;
+	background: -webkit-linear-gradient(left, #5C8EE6, rgba(201, 222, 255, 0) 88%);
+}
+#l ul.tabs li.active {
+	cursor: pointer;
+	background: #5C8EE6;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+}
+#r {
 	background-color: white;
-	margin-left: auto;
-	margin-right: auto;
-	width: 400px;
+	height: 100%;
+	padding-left: 270px;
+	padding-right: 10px;
+}
+#r .tabHead {
+	border-bottom: 1px solid #5C8EE6;	
+	font-size:180%;
+	font-weight: normal;
+	color: #001F56;
+	padding: 15px 0;
+}
+#r ul li {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	vertical-align: middle;
+}
+#r .h {
+	font-weight:bold;
+	width: 150px;
+	text-align: right;
+	padding-right: 7px;
+	padding-top:5px;
+	padding-bottom:5px;
+	line-height: 20px;
+	vertical-align: middle;
+}
+#r .c {
+	padding-top:5px;
+	padding-bottom:5px;
+	-webkit-box-flex: 1;
+	vertical-align: middle;
+	
+}
+iframe {
+	border: 0;
+	width: 100%;
 }
 	</style>
+	<title>sipgateGCX options</title>
 	</head>
 	<body>
-		<div id="page">
-			<h1>sipgate for Google - Options</h1>
 			
-			<div class="tab">
+		<div id="l">
+			<h1>sipgateGCX</h1>
+	
+			<ul class="tabs">
+				<li class="tabHead" id="switch_account">Account</li>
+				<li class="tabHead" id="switch_c2d">click2dial</li>
+				<li class="tabHead" id="switch_c2dblacklist">click2dial blacklist</li>
+			</ul>
+			<ul class="tabs">
+				<li class="tabHead" id="switch_about">About sipgateGCX</li>
+				<li class="tabHead" id="switch_whatsnew">What's new?</li>
+			</ul>
+		</div>
+
+		<div id="r">
+			<div class="tab hidden" id="tab_account">
 				<div class="tabHead">Account</div>
 				<div class="tabContent">
-					Username: <input type="text">
-					Password: <input type="text">
-					<input type="checkbox" id="autologin"> Auto-Login
-					
-					<input type="checkbox" id="showbalance"> Don't show balance
-					
-					<a href="whatsnew.html">What's new in this version?</a>
-					
+					<ul>
+						<li><div class="h">Username</div>
+						<div class="c"><input type="text" class="setting" name="username"></div></li>
+						
+						<li><div class="h">Password</div>
+						<div class="c"><input type="password" class="setting" name="password"></div></li>
+						
+						<li><div class="h">&nbsp;</div>
+						<div class="c"><label><input type="checkbox" class="setting" name="autologin" checked="checked"> Auto-Login</label></div></li>
+						
+						<li><div class="h">&nbsp;</div>
+						<div class="c"><label><input type="checkbox" class="setting" name="noshowbalance"> Don't show balance</label></div></li>
+					</ul>
 				</div>
 			</div>
 			
-			<div class="tab">
+			<div class="tab hidden" id="tab_c2d">
 				<div class="tabHead">click2dial</div>
 				<div class="tabContent">
-					<input type="checkbox" id="previewnumber"> Edit phone number before dialing
-					<input type="checkbox" id="c2denabled">  Enable click2dial on phone numbers
-					<input type="color"> Color for click2dial highlightning
-					
-					Click2Dial-Phone
-					<select id="defaultextension">
-						<option></option>
-					</select>				
+					<ul>
+						<li><div class="h">&nbsp;</div>
+						<div class="c"><label><input type="checkbox" class="setting" name="previewnumber"> Edit phone number before dialing</label></div></li>
+						
+						<li><div class="h">&nbsp;</div>
+						<div class="c"><label><input type="checkbox" class="setting" name="c2denabled" checked="checked">  Enable click2dial on phone numbers</label></div></li>
+						
+						<li><div class="h">Color for click2dial highlightning</div>
+						<div class="c"><input type="text" class="setting" name="c2dcolor" value="#fff1b8"></div>
+						</li>
+						
+						<li><div class="h">Click2Dial-Phone</div>
+						<div class="c"><select class="setting" name="defaultextension">
+							<option></option>
+						</select></div></li>
+					</ul>
 				</div>
 			</div>
 			
-			<div class="tab">
+			<div class="tab hidden" id="tab_c2dblacklist">
 				<div class="tabHead">click2dial blacklist</div>
 				<div class="tabContent">
+					<div>
 						Following domains are excluded from automatic phone number detection:
-						<select size="6">
-							<option>sipgate.de</option>
-						</select>
-						<button>Remove</button>			
-				</div>
+					</div>
+					<select size="6">
+						<option>sipgate.de</option>
+					</select>
+					<button>Remove</button>
+				</div>			
 			</div>
-		</div>	
+	
+			<div class="tab hidden" id="tab_about">
+				<div class="tabHead">About sipgateGCX</div>
+				<div class="tabContent">
+					
+				</div>			
+			</div>
+			
+			<div class="tab hidden" id="tab_whatsnew">
+				<div class="tabHead">What's new in this version?</div>
+				<div class="tabContent">
+					<iframe id="whatsnewframe" src="firststart/welcome_de.html"></iframe>
+				</div>			
+			</div>
+			
+			<div>
+				<button id="savesetting">Save settings</button>
+				<button id="closesetting">Close settings page</button>
+			</div>			
+		</div>
+		
 	</body>
 </html>

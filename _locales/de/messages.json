@@ -2,6 +2,7 @@
 	"extDescription": {"message": "Kommunikation und Browser erfolgreich vereint"},
 	"extTitle": {"message": "sipgate für Google Chrome"},
 	"enterCredentials":  {"message": "Bitte geben Sie Ihren Namen und Ihr Passwort ein."},
+	"wrongCredentials":  {"message": "Sie haben einen falschen Benutzernamen und/oder Passwort eingegeben."},
 	"smsMissingNumber":  {"message": "Sie müssen eine gültige Nummer angeben.\nSMS-Versand abgebrochen."},
 	"smsMissingText":  {"message": "Sie müssen Text zum Versenden eingeben.\nSMS-Versand abgebrochen."},
 	"click2dial_status_ESTABLISHED":  {"message": "Gesprächsdauer: %S Sekunden"},
