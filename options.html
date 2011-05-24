@@ -109,6 +109,7 @@ iframe {
 			<ul class="tabs">
 				<li class="tabHead" id="switch_about">About sipgateGCX</li>
 				<li class="tabHead" id="switch_whatsnew">What's new?</li>
+				<li class="tabHead" id="switch_log">Show support log</li>
 			</ul>
 		</div>
 
@@ -147,8 +148,7 @@ iframe {
 						</li>
 						
 						<li><div class="h">Click2Dial-Phone</div>
-						<div class="c"><select class="setting" name="defaultextension">
-							<option></option>
+						<div class="c"><select class="setting" id="click2DialList" name="defaultExtension">
 						</select></div></li>
 					</ul>
 				</div>
@@ -178,6 +178,13 @@ iframe {
 				<div class="tabHead">What's new in this version?</div>
 				<div class="tabContent">
 					<iframe id="whatsnewframe" src="firststart/welcome_de.html"></iframe>
+				</div>			
+			</div>
+			
+			<div class="tab hidden" id="tab_log">
+				<div class="tabHead">Support Log</div>
+				<div class="tabContent">
+					<iframe id="logframe"></iframe>
 				</div>			
 			</div>
 			

@@ -144,20 +144,16 @@ var page = {
 			return;
 		}
 		
-		if(bgr.username == null || bgr.password == null)
-		{
-			bgr.username = $('username').get('value');
-			bgr.password = $('password').get('value');
-			localStorage.setItem('username', bgr.username);
-			localStorage.setItem('password', bgr.password);
-		}
+		bgr.username = $('username').get('value');
+		bgr.password = $('password').get('value');
+		localStorage.setItem('username', bgr.username);
+		localStorage.setItem('password', bgr.password);
+
 		bgr.login(true);		
 	},
 	
 	logoutAction: function(evnt) {
 		evnt.stop();
-		localStorage.removeItem('username');
-		localStorage.removeItem('password');
 		bgr.username = null;
 		bgr.password = null;
 		bgr.loggedin = false;
@@ -166,7 +162,7 @@ var page = {
 	},
 	
 	showBalance: function(balance) {
-		console.log(balance);
+		bgr.logBuffer.append(balance);
 		$('balance').set('text', balance[0]);
 		
 		if(balance[1] < 5.0) {
@@ -184,7 +180,10 @@ function doOnLoad()
 	
 	$('refresh_balance').addEvent('click', function() {
 		$('balance').set('text', '...wait...');
-		bgr.getBalance();
+		
+		console.log(bgr.backgroundProcess);
+		
+		bgr.backgroundProcess.getBalance();
 	});
 	
 }
@@ -213,7 +212,7 @@ function receiveMessage(e) {
     		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
 			break;
 		default:
-			console.log('Event handling not found for event: ' + e);
+			bgr.logBuffer.append('Event handling not found for event: ' + e);
 			break;
 	}
 }
@@ -235,7 +234,7 @@ function formatNumber(number, callback) {
 			if(typeof(callback) == 'function') {
 				callback(data);
 			} else {
-//				console.log(data);
+//				bgr.logBuffer.append(data);
 			}
 		}.bind(this),
 		onFailure: function(data) {

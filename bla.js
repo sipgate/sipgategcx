@@ -251,6 +251,7 @@ var allCountries = {
 var countryCodeRegex;
 
 var click2dialBackground = '#fff1b8';
+var previewDialog = false; 
 
 function _prepareArray() {
 	var tmp="/^XXX";
@@ -263,16 +264,21 @@ function _prepareArray() {
 
 _prepareArray();
 
-startRendering();
+chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
+	if(res.parsing == "false") return;
+	if(res.color) click2dialBackground = res.color;
+	if(res.preview) previewDialog = (res.preview=="true");
+	startRendering();
+});
 
 function startRendering()
 {
+	
 	try {
 		var doc = document;
 		var body = doc.body;
 		
 		if (!body || body.className.match(/editable/)) {
-			alert("NO BODY FOUND");
 			return;
 		}
 		
@@ -285,10 +291,10 @@ function startRendering()
 		var headItems = doc.getElementsByTagName('head');
 		if (headItems.length) 
 		{
-			var webphoneMetaItem = doc.createElement("meta");
-			webphoneMetaItem.setAttribute("name","sipgateffx_click2dial");
-			webphoneMetaItem.setAttribute("value","enabled");
-			headItems[0].appendChild(webphoneMetaItem);
+			var ffxmeta = doc.createElement("meta");
+			ffxmeta.setAttribute("name","sipgateffx_click2dial");
+			ffxmeta.setAttribute("value","enabled");
+			headItems[0].appendChild(ffxmeta);
 		}
 		setTimeout(sipgateffxParseDOM, 0, body, doc);
 	} catch(e) {
@@ -396,6 +402,7 @@ function sipgateffxCheckPhoneNumber(aNode)
             
             spanNode.className = 'sipgateFFXClick2DialBubble';
 	        spanNode.title = "sipgate Click2Dial for " +  prettyNumber + (country ? ' ('+country+')' : '');
+	        spanNode.style.backgroundColor = click2dialBackground;
 	        
 	        spanNode.addEventListener("click", sipgateffxCallClick);
 	        //spanNode.addEventListener("click", sipgateffxCallClick, true);
@@ -470,14 +477,14 @@ function sipgateffxCallClick(e)
 		e.preventDefault();
 	    var number = this.getAttribute("sipgateffx_number");
 	    if (!number) return;
+	    
+	    if(previewDialog == true) {
+	    	number = prompt(chrome.i18n.getMessage("previewnumber_dialog"), number);
+	    	if(!number) return;
+	    }
+	    
 	    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
-	    /*
-		if (sgffx.getPref("extensions.sipgateffx.previewnumber", "bool")) {
-			window.openDialog('chrome://sipgateffx/content/previewnumber.xul', 'sipgatePreviewnumber', 'chrome,centerscreen,resizable=no,titlebar=yes,alwaysRaised=yes', '+'+niceNumber);
-		} else {
-			sgffx.click2dial(niceNumber);
-		}
-		*/
+
 	} catch (ex) {
 		alert("Error in _sipgateffxCallClick(): "+ex);
 	}

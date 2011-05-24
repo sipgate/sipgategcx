@@ -1,3 +1,44 @@
+var logBuffer = {
+	capacity: 10000,
+	buffer: [],
+	logToConsole: true,
+	
+	_getTime: function() {
+		var t = new Date();
+		return '['+	[
+		 t.getUTCFullYear(),
+		 t.getUTCMonth(),
+		 t.getUTCDate(),
+		 t.getUTCHours(),
+		 t.getUTCMinutes(),
+		 t.getUTCSeconds()].join('-')
+		 + ']';
+	},
+	
+	append: function(item)
+	{
+		if(typeof(item) == "object")
+		{
+			item = JSON.encode(item);
+		}
+		
+		if(typeof(item) != "string")
+		{
+			return;
+		}
+	
+		if(logBuffer.logToConsole) console.log(this._getTime() +' '+ item);
+		
+		this.buffer.push(this._getTime() +' '+ item);
+		
+		if(this.buffer.length > this.capacity)
+		{
+			this.buffer.pop();
+		}
+	}	
+};
+
+
 var TOSMapping = {
 	call: "voice",
 	sms: "text",
@@ -5,18 +46,47 @@ var TOSMapping = {
 };
 
 var backgroundProcess = {
+	extensionInfo: {},
 	tosList: [
         "voice",
         "text",
-        "fax",
+        "fax"
     ],
+    
+    samuraiServer: {'team': "https://api.sipgate.net/RPC2", 'classic': "https://samurai.sipgate.net/RPC2"},
+    systemAreaRegEx: new RegExp(/^.+@.+\.[a-z]{2,6}$/),
+
 	ownUriList: {"voice": [], "text": [], "fax": []},
     defaultExtension: {},
     
     currentSessionID: null,
     currentSessionData: null,
     currentSessionTime: null,
+
+    init: function() {
+    	this.getVersionInfo(function(versionInfo) { this.extensionInfo = versionInfo }.bind(this));
+    },
     
+    getVersionInfo: function(callback) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                callback(JSON.decode(xhr.responseText));
+            }
+        };
+        xhr.open("GET", chrome.extension.getURL('/manifest.json'));
+
+        try {
+            xhr.send();
+        } catch(e) {
+        	logBuffer.append('Couldn\'t load manifest.json');
+        }
+    },
+    
+    /**
+     * function that receives requests from content pages
+     */
 	receiveRequest: function(request, sender, sendResponse) {
 		if(!sender.tab) return;
 		var response = {};
@@ -25,13 +95,20 @@ var backgroundProcess = {
 				case 'startClick2dial':
 					backgroundProcess.startClick2Dial(request.number);
 					break;
+				case 'getParsingOptions':
+					response = {
+							parsing: localStorage.getItem("c2denabled"),
+							color: localStorage.getItem("c2dcolor"),
+							preview: localStorage.getItem("previewnumber")
+					};
+					break;
 			}
 		}
 		sendResponse(response);
 	},
 	
 	startClick2Dial: function(number) {
-		console.log("Starting with click2dial for number: " + number);
+		logBuffer.append("Starting with click2dial for number: " + number);
 		if(typeof(number) == "undefined" || !number) {
 			alert(chrome.i18n.getMessage("click2dial_missingNumber"));
 			return;
@@ -47,7 +124,8 @@ var backgroundProcess = {
 			return;
 		}
 
-		var from = this.defaultExtension[TOSMapping.call];		
+		var from = this.getClick2DialFromExtension();
+		
 		if(from == null) {
 			alert(chrome.i18n.getMessage("click2dial_noDefaultExtension"));
 			return;
@@ -56,7 +134,7 @@ var backgroundProcess = {
 		var to = niceNumber(number);
 		this.currentSessionData = {'to': to, 'from': from['alias']};
 
-		console.log("Starting with click2dial with currentSessionData: " + JSON.encode(this.currentSessionData));
+		logBuffer.append("Starting with click2dial with currentSessionData: " + JSON.encode(this.currentSessionData));
 		
 		var params = { 
 				'LocalUri': from['extensionSipUri'],
@@ -65,10 +143,10 @@ var backgroundProcess = {
 				'Content': ''		
 			};
 		
-		console.log("Starting with click2dial with params: " + JSON.encode(params));
+		logBuffer.append("Starting with click2dial with params: " + JSON.encode(params));
 		
     	var onSuccess = function(res) {
-    		console.log("SessionInitiate result: " + JSON.encode(res));
+    		logBuffer.append("SessionInitiate result: " + JSON.encode(res));
 			if (res.StatusCode && res.StatusCode == 200) {
 				this.currentSessionID = res.SessionID;
 				chrome.browserAction.setIcon({path:"skin/c2d_wait.gif"});		
@@ -82,10 +160,37 @@ var backgroundProcess = {
 		_rpcCall("samurai.SessionInitiate", params, onSuccess);		
 	},
 
+	getClick2DialFromExtension: function()
+	{
+		var from = this.defaultExtension[TOSMapping.call];
+		
+		// check for custom defaultExtension
+	    var voiceList = this.ownUriList[TOSMapping.call];
+		var uriList = [];
+		var defaultExtensionPref = localStorage.getItem("defaultExtension");
+		
+		// make a list of all available voice uris
+	    for (var i = 0; i < voiceList.length; i++) {
+			uriList.push(voiceList[i].SipUri);
+		}
+		
+		// check if option's defaultExtension is in the list of available extensions
+		if(uriList.indexOf(defaultExtensionPref) == -1) {
+			localStorage.setItem("defaultExtension", from.extensionSipUri);
+		} else {
+			from = {
+				'alias': defaultExtensionPref,
+				'extensionSipUri': defaultExtensionPref
+			};
+		}
+		
+		return from;
+	},
+	
 	getClick2DialStatus: function() {
-		console.log(this);
+		logBuffer.append(this);
 		if(this.currentSessionID == null) {
-			console.log('click2dial is not initiated.');
+			logBuffer.append('click2dial is not initiated.');
 			return;
 		}
 		
@@ -98,7 +203,7 @@ var backgroundProcess = {
 				if (res.StatusCode && res.StatusCode == 200) {
 					
 					var state = res.SessionStatus.toUpperCase().replace(/ /g,"_");
-					console.log('sipgateffx (click2dial): Status: ' + state);
+					logBuffer.append('sipgateffx (click2dial): Status: ' + state);
 					
 					switch(state) {
 						case 'ESTABLISHED':
@@ -145,7 +250,7 @@ var backgroundProcess = {
 						text = chrome.i18n.getMessage(key);
 					}
 					
-					console.log(text);
+					logBuffer.append(text);
 					
 					if (endStati.indexOf(state) == -1) {
 						backgroundProcess.getClick2DialStatus.delay(1000, this);
@@ -165,14 +270,14 @@ var backgroundProcess = {
 					if(res.faultCode && res.faultString) {
 						msg = msg + ' (faultCode: '+res.faultCode+' / faultString: '+res.faultString+')';
 					}
-					console.log(msg);
+					logBuffer.append(msg);
 					this.currentSessionID = null;
 					this.currentSessionTime = null;
 					
 					this.changeIcon.delay(5000, this, ['skin/icon_sipgate_active.gif']);
 				}
 			} catch(ex) {
-				console.log('!$§§%$@@@ Exception: ' + ex);
+				logBuffer.append('!$§§%$@@@ Exception: ' + ex);
 			}
 		}.bind(this);
 
@@ -183,7 +288,7 @@ var backgroundProcess = {
 		try {
 			chrome.browserAction.setIcon({path: toWhat});
 		} catch (e) {
-			console.log('§&1!!: Exception: ' + e);
+			logBuffer.append('§&1!!: Exception: ' + e);
 		}
 	},
 
@@ -193,52 +298,152 @@ var backgroundProcess = {
 			password = _password;
 			loggedin = false;
 			login();
-			console.log("Credentials set");
-			console.log(loggedin);
+			logBuffer.append("Credentials set");
+			logBuffer.append(loggedin);
 		}
-	}
-
-};
-
-var backgroundHelper = {
-    // Converts a UTF-8 encoded string to ISO-8859-1  
-    // 
-    // version: 905.3122
-    // discuss at: http://phpjs.org/functions/utf8_decode
-    // +   original by: Webtoolkit.info (http://www.webtoolkit.info/)
-    // +      input by: Aman Gupta
-    // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // +   improved by: Norman "zEh" Fuchs
-    // +   bugfixed by: hitwork
-    // +   bugfixed by: Onno Marsman
-    // +      input by: Brett Zamir (http://brett-zamir.me)
-    // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-    // *     example 1: utf8_decode('Kevin van Zonneveld');
-    // *     returns 1: 'Kevin van Zonneveld'
-	utf8decode: function(str_data) {
-	    var tmp_arr = [], i = 0, ac = 0, c1 = 0, c2 = 0, c3 = 0;
-	    
-	    str_data += '';
-	    
-	    while ( i < str_data.length ) {
-	        c1 = str_data.charCodeAt(i);
-	        if (c1 < 128) {
-	            tmp_arr[ac++] = String.fromCharCode(c1);
-	            i++;
-	        } else if ((c1 > 191) && (c1 < 224)) {
-	            c2 = str_data.charCodeAt(i+1);
-	            tmp_arr[ac++] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
-	            i += 2;
-	        } else {
-	            c2 = str_data.charCodeAt(i+1);
-	            c3 = str_data.charCodeAt(i+2);
-	            tmp_arr[ac++] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-	            i += 3;
-	        }
-	    }
+	},
 	
-	    return tmp_arr.join('');
-	}
+
+	clientIdentify: function clientIdentify() {
+		var params = {
+			'ClientName': 'sipgateGCX',
+			'ClientVersion': this.version,
+			'ClientVendor': 'sipgate (michael.rotmanov)'
+		};
+		
+        var result = function(ourParsedResponse, aXML){
+		};
+
+		_rpcCall("samurai.ClientIdentify", params, result);
+	},	
+	
+	getTosList: function getTosList()
+	{
+		var onSuccess = function(res) {
+			if (res.StatusCode && res.StatusCode == 200) {
+				if(res.TosList) {
+					backgroundProcess.tosList = res.TosList; 
+				}				
+			}
+		};
+			
+		var params = {};			
+		
+		_rpcCall("samurai.TosListGet", params, onSuccess);		
+	},
+	
+	getRecommendedIntervals: function getRecommendedIntervals()
+	{
+		var onSuccess = function(res) {
+			if (res.StatusCode && res.StatusCode == 200) {
+				if (res.IntervalList.length > 0) {
+					for (var i = 0; i < res.IntervalList.length; i++) {
+						recommendedIntervals[res.IntervalList[i].MethodName] = res.IntervalList[i].RecommendedInterval;
+					}
+				}
+			}
+		};
+			
+		var params = {
+			'MethodList': ["samurai.RecommendedIntervalGet", "samurai.BalanceGet", "samurai.EventSummaryGet"]
+		};			
+		
+		_rpcCall("samurai.RecommendedIntervalGet", params, onSuccess);
+	},	
+
+	getOwnUriList: function getOwnUriList() {
+
+		var onSuccess = function(res) {
+			if (res.StatusCode && res.StatusCode == 200) {
+				if (res.OwnUriList.length > 0) {
+					// clear old list
+					var uriList = [];
+					backgroundProcess.ownUriList = {"voice": [], "text": [], "fax": []};
+										
+					
+					for (var i = 0; i < res.OwnUriList.length; i++) {
+						uriList.push(res.OwnUriList[i].SipUri);
+                        for (var k = 0; k < res.OwnUriList[i].TOS.length; k++) {
+							var tmp = backgroundHelper.utf8decode(res.OwnUriList[i].UriAlias);
+                            var extensionInfo = {
+                                'UriAlias': tmp,
+                                'DefaultUri': res.OwnUriList[i].DefaultUri,
+                                'E164In': res.OwnUriList[i].E164In,
+                                'E164Out': res.OwnUriList[i].E164Out,
+                                'SipUri': res.OwnUriList[i].SipUri
+                            };
+                            var tosType = res.OwnUriList[i].TOS[k];
+                            backgroundProcess.ownUriList[tosType].push(extensionInfo);
+                            
+                            if (res.OwnUriList[i].DefaultUri === true) {
+                            	var defaultInfo = {
+                                        'alias': (res.OwnUriList[i].UriAlias!='' ? res.OwnUriList[i].UriAlias : res.OwnUriList[i].SipUri),
+                                        'extensionSipUri': res.OwnUriList[i].SipUri
+                            	};
+                            	backgroundProcess.defaultExtension[tosType] = defaultInfo;
+                            }
+                        }
+					}
+					
+					/**
+					 * TODO Set default extension to preferences
+					 */
+				}
+			}
+		};
+			
+		var params = {};			
+		
+		_rpcCall("samurai.OwnUriListGet", params, onSuccess);
+	},
+	
+	getBalance: function getBalance() {
+
+		var onSuccess = function(res) {
+			logBuffer.append('### getBalance. Result received.');
+			
+			if (res.StatusCode && res.StatusCode == 200) {
+				var balance = res.CurrentBalance;
+				var currency = balance.Currency;
+				var balanceValueDouble = balance.TotalIncludingVat;
+				
+				var balanceValueString = balanceValueDouble;
+				
+				// dirty hack to localize floats:
+				if (navigator.language == "de") {
+					// german floats use "," as delimiter for mantissa:
+					balanceValueString = balanceValueDouble.toFixed(2).toString();
+					balanceValueString = balanceValueString.replace(/\./, ",");
+				} else {
+					balanceValueString = balanceValueDouble.toFixed(2).toString();
+				}
+				
+				curBalance = [balanceValueString + " " + currency, balanceValueDouble];
+				logBuffer.append(curBalance);
+	    		notifyViews('balance');
+	    		chrome.browserAction.setTitle({title: balanceValueString});
+			}
+			
+			var delay = recommendedIntervals["samurai.BalanceGet"];
+			backgroundProcess.getBalance.delay(delay * 1000);
+			logBuffer.append("getBalance: polling enabled. set to " + delay + " seconds");			
+		};		
+		
+		_rpcCall("samurai.BalanceGet", null, onSuccess);
+	},		
+
+    get systemArea() {
+    	return this.systemAreaRegEx.test(this.username) ? 'team' : 'classic';
+    },
+    
+    get version() {
+    	var version = "NOTYETKNOWN";
+    	if(this.extensionInfo && this.extensionInfo.version) {
+    		version = this.extensionInfo.version;
+    	}
+    	return version;
+    }
+        
 };
 
 var restApi = {
@@ -275,7 +480,7 @@ var restApi = {
 			if(res['events']['voicemails'].length > 0 && res['events']['voicemails'][0].id > this.voicemail.lastId) {
 				var counter = 0;
 				for (var i = 0, l = res['events']['voicemails'].length; i < l; i++) {
-					console.log(res['events']['voicemails'][i]);
+					logBuffer.append(res['events']['voicemails'][i]);
 					if(res['events']['voicemails'][i].id > this.voicemail.lastId) {
 						counter++;
 					} else {
@@ -314,7 +519,7 @@ var restApi = {
 				}						
 			},
 			onFailure: function(xhr) {
-				console.log("BAD" + xhr.status);
+				logBuffer.append("BAD" + xhr.status);
 				if(typeof failureCallback == 'function')
 				{
 					failureCallback(xhr);
@@ -363,6 +568,7 @@ var restApi = {
 		{
 			login();
 		}
+		backgroundProcess.init();
 	}
 	
 	function login(force)
@@ -375,10 +581,10 @@ var restApi = {
 		var onSuccess = function(res) {
 			if (res.StatusCode && res.StatusCode == 200) {
 				loggedin = true;
-				getBalance();
-				getTosList();
-				getRecommendedIntervals();
-				getOwnUriList();
+				backgroundProcess.getBalance();
+				backgroundProcess.getTosList();
+				backgroundProcess.getRecommendedIntervals();
+				backgroundProcess.getOwnUriList();
 
 	    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
 	    		notifyViews('loggedin');
@@ -395,158 +601,6 @@ var restApi = {
 		
 		_rpcCall("samurai.ServerdataGet", {}, onSuccess, onFail);
 	}
-
-	function clientIdentify() {
-		var params = {
-			'ClientName': 'sipgateFFX',
-			'ClientVersion': this.version,
-			'ClientVendor': 'sipgate (michael.rotmanov)'
-		};
-		
-		dumpJson(params);
-		
-        var result = function(ourParsedResponse, aXML){
-		};
-
-		try {
-			this._rpcCall("samurai.ClientIdentify", params, result);
-		} catch(e) {
-			this.log('Exception in xmlrpc-request: ' + e);
-			this.log('Request sent: ' + request);
-		}
-		
-		this.log("*** clientIdentify *** END ***");		
-		
-	};	
-	
-	
-	function getTosList()
-	{
-		var onSuccess = function(res) {
-			if (res.StatusCode && res.StatusCode == 200) {
-				if(res.TosList) {
-					backgroundProcess.tosList = res.TosList; 
-				}				
-			}
-		};
-			
-		var params = {};			
-		
-		_rpcCall("samurai.TosListGet", params, onSuccess);		
-	}
-	
-	function getRecommendedIntervals()
-	{
-		var onSuccess = function(res) {
-			if (res.StatusCode && res.StatusCode == 200) {
-				if (res.IntervalList.length > 0) {
-					for (var i = 0; i < res.IntervalList.length; i++) {
-						recommendedIntervals[res.IntervalList[i].MethodName] = res.IntervalList[i].RecommendedInterval;
-					}
-				}
-			}
-		};
-			
-		var params = {
-			'MethodList': ["samurai.RecommendedIntervalGet", "samurai.BalanceGet", "samurai.EventSummaryGet"]
-		};			
-		
-		_rpcCall("samurai.RecommendedIntervalGet", params, onSuccess);
-	}
-	
-
-	function getOwnUriList() {
-
-		var onSuccess = function(res) {
-			if (res.StatusCode && res.StatusCode == 200) {
-				if (res.OwnUriList.length > 0) {
-					// clear old list
-					var uriList = [];
-					backgroundProcess.ownUriList = {"voice": [], "text": [], "fax": []};
-										
-					
-					for (var i = 0; i < res.OwnUriList.length; i++) {
-						uriList.push(res.OwnUriList[i].SipUri);
-                        for (var k = 0; k < res.OwnUriList[i].TOS.length; k++) {
-							var tmp = backgroundHelper.utf8decode(res.OwnUriList[i].UriAlias);
-                            var extensionInfo = {
-                                'UriAlias': tmp,
-                                'DefaultUri': res.OwnUriList[i].DefaultUri,
-                                'E164In': res.OwnUriList[i].E164In,
-                                'E164Out': res.OwnUriList[i].E164Out,
-                                'SipUri': res.OwnUriList[i].SipUri
-                            };
-                            var tosType = res.OwnUriList[i].TOS[k];
-                            backgroundProcess.ownUriList[tosType].push(extensionInfo);
-                            
-                            if (res.OwnUriList[i].DefaultUri === true) {
-                            	var defaultInfo = {
-                                        'alias': (res.OwnUriList[i].UriAlias!='' ? res.OwnUriList[i].UriAlias : res.OwnUriList[i].SipUri),
-                                        'extensionSipUri': res.OwnUriList[i].SipUri
-                            	};
-                            	backgroundProcess.defaultExtension[tosType] = defaultInfo;
-                            }
-                        }
-					}
-					
-					/**
-					 * TODO Set default extension to preferences
-					 */
-				}
-			}
-		};
-			
-		var params = {};			
-		
-		_rpcCall("samurai.OwnUriListGet", params, onSuccess);
-	}
-	
-	function getBalance() {
-
-		var onSuccess = function(res) {
-			console.log('### getBalance. Result received.');
-			
-			if (res.StatusCode && res.StatusCode == 200) {
-				var balance = res.CurrentBalance;
-				var currency = balance.Currency;
-				var balanceValueDouble = balance.TotalIncludingVat;
-				
-				var balanceValueString = balanceValueDouble;
-				
-				// dirty hack to localize floats:
-				if (navigator.language == "de") {
-					// german floats use "," as delimiter for mantissa:
-					balanceValueString = balanceValueDouble.toFixed(2).toString();
-					balanceValueString = balanceValueString.replace(/\./, ",");
-				} else {
-					balanceValueString = balanceValueDouble.toFixed(2).toString();
-				}
-				
-				curBalance = [balanceValueString + " " + currency, balanceValueDouble];
-				console.log(curBalance);
-	    		notifyViews('balance');
-			}
-			
-			/*
-			if (_sgffx.getPref("extensions.sipgateffx.polling", "bool")) {
-				// set update timer
-				var delay = _sgffx.recommendedIntervals["samurai.BalanceGet"];
-				
-				_sgffx.getBalanceTimer.initWithCallback({
-					notify: function(timer) {
-						_sgffx.curBalance = null;
-						_sgffx.getBalance();
-					}
-				}, delay * 1000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
-				
-				_sgffx.log("getBalance: polling enabled. set to " + delay + " seconds");
-			}
-			*/
-		};		
-		
-		_rpcCall("samurai.BalanceGet", null, onSuccess);
-	}		
-	
 	
 	function sendSMS(number, text)
 	{
@@ -554,7 +608,7 @@ var restApi = {
 		var params = { 'RemoteUri': remoteUri, 'TOS': "text", 'Content': text };
 		
     	var onSuccess = function(res) {
-    		console.log(res);
+    		logBuffer.append(res);
 			if (res.StatusCode && res.StatusCode == 200) {
 				notifyViews('smsSentSuccess');
 			} else {
@@ -567,14 +621,16 @@ var restApi = {
 
 	function _rpcCall(method, params, successCallback, failureCallback)
 	{
-		console.log(method);
+		logBuffer.append(method);
 		var msg = new XmlRpcRequest('', method);
 		if(typeof params != 'undefined' && params != null)
 		{
 			msg.addParam(params);
 		}
+		
 //		var server = "https://api.sipgate.net/RPC2";
-		var server = "http://api.dev.sipgate.net/RPC2";
+		var server = backgroundProcess.samuraiServer[backgroundProcess.systemArea];
+
 		var xml = msg.parseXML();
 		new Request({ 
 					url: server, 
@@ -592,7 +648,7 @@ var restApi = {
 						}
 					},
 					onFailure: function(xhr) {
-						console.log("BAD" + xhr.status);
+						logBuffer.append("BAD" + xhr.status);
 						if(typeof failureCallback == 'function')
 						{
 							failureCallback(xhr);
@@ -605,7 +661,7 @@ var restApi = {
 		try {
 			var natprefix = userCountryPrefix;
 			
-			console.log("_niceNumber(): number before: "+_number);
+			logBuffer.append("_niceNumber(): number before: "+_number);
 			
 			// -----------------------------------------------------
 			
@@ -645,9 +701,9 @@ var restApi = {
 			// -----------------------------------------------------	
 
 			_number = _number.toString().replace(/[^\d]/g, "");
-			console.log("_niceNumber(): number after: "+_number);
+			logBuffer.append("_niceNumber(): number after: "+_number);
 		} catch (ex) {
-		    	console.log("Error in _niceNumber(): "+ex);
+		    	logBuffer.append("Error in _niceNumber(): "+ex);
 		}
 		return _number;
 	}

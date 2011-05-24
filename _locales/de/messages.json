@@ -21,5 +21,7 @@
 	"click2dial_unavailableTos":  {"message": "Verzeihung, click2dial wurde für diesen Account deaktiviert."},
 	"click2dial_noDefaultExtension":  {"message": "Es wurde kein Standardtelefon für click2dial festgelegt."},
 	"click2dial_running":  {"message": "click2dial läuft bereits."},	
-	"click2dial_missingNumber":  {"message": "Es wurde keine gültige Rufnummer eingegeben."}	
+	"click2dial_missingNumber":  {"message": "Es wurde keine gültige Rufnummer eingegeben."},	
+	"previewnumber_dialog":  {"message": "Diese Rufnummer wird gleich gewählt:"},	
+	"options_saved":  {"message": "Die Einstellungen wurden gespeichert."}	
 }
