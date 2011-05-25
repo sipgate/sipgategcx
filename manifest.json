@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_extTitle__",
-	"version": "0.6.99.1",
+	"version": "0.6.99.3",
 	"description": "__MSG_extDescription__",
 	"author": "rotmanov@sipgate.de",
 	"default_locale": "de",
@@ -15,7 +15,14 @@
 		"http://api.dev.sipgate.net/RPC2",
 		"https://api.sipgate.net/RPC2",
 		"https://samurai.sipgate.net/RPC2",
-		"https://*.sipgate.de/format/do/info/*"
+		"https://*.sipgate.de/format/do/info/*",
+		"https://secure.sipgate.de/user/slogin.php",
+		"https://secure.sipgate.co.uk/user/slogin.php",
+		"https://secure.sipgate.at/user/slogin.php",
+		"https://secure.sipgate.com/",
+		"https://secure.live.sipgate.de/",
+		"https://secure.live.sipgate.co.uk/",
+		"https://secure.live.sipgate.at/"
 	],
 	"options_page": "options.html",
 	"background_page": "background.html",

@@ -103,6 +103,30 @@ var toolStripEvents = {
 };
 
 var page = {
+	url: {
+			'team': {
+			    "history": "/#filter_inbox",
+			    "historycall": "/#type_call",
+			    "historyfax": "/#type_fax",
+			    "historysms": "/#type_sms",
+			    "credit": "/settings/account/creditaccount",
+			    "voicemail": "/#type_voicemail",
+			    "fax": "/fax",
+			    "phonebook": "/contacts",
+			    "itemized": "/settings/account/evn",
+			    "default": "/"
+			},
+			'classic': {
+			    "history": "/user/calls.php",
+			    "credit": "/user/kontoaufladen.php",
+			    "voicemail": "/user/voicemail.php",
+			    "fax": "/user/fax/index.php",
+			    "phonebook": "/user/phonebook.php",
+			    "itemized": "/user/konto_einzel.php?show=all",
+			    "default": "/user/index.php"
+			}
+	},
+
 	init: function() {
 		this.addLoginEvent();
 		this.addToolstripMenuEvents();
@@ -134,6 +158,56 @@ var page = {
 		if($('logout')) {
 			$('logout').addEvent('click', this.logoutAction.bind(this));
 		}
+		
+		if($('preferences')) {
+			$('preferences').addEvent('click', this.preferencesAction.bind(this));
+		}
+		
+		$$('li.showSitePage').addEvent('click', this.onStatusbarCommand.bindWithEvent(this));
+	},
+	
+	preferencesAction: function() {
+		chrome.tabs.create({
+			url: chrome.extension.getURL('/options.html')
+		});
+	},
+	
+	onStatusbarCommand: function(evnt) {
+		var clickedOn = $(evnt.target);
+		var param = clickedOn.id;
+		
+		if(typeof(this.url[bgr.backgroundProcess.systemArea][param]) == 'undefined') {
+			bgr.logBuffer.append("*** ->showSitePage: no url for action");
+			return;
+		}
+		
+		var protocol = 'https://';
+		var httpServer = bgr.sipgateCredentials.HttpServer.replace(/^www/, 'secure');
+		var siteURL = protocol + httpServer + this.url[bgr.backgroundProcess.systemArea][param];
+		bgr.logBuffer.append("*** sipgateffx->showSitePage: link = " + siteURL);
+
+		this.websiteSessionLogin(protocol + httpServer, bgr.username, bgr.password, function(res) {
+			chrome.tabs.create({
+				url: siteURL
+			});				
+		});
+			
+	},
+	
+	websiteSessionLogin: function(baseurl, user, pass, callback) {
+		var urlSessionLogin = baseurl;
+		if (bgr.backgroundProcess.systemArea == 'classic') {
+			urlSessionLogin += "/user/slogin.php";
+		}
+		
+		new Request({
+			'url': urlSessionLogin,
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			data: {username: user, password: pass},
+			onComplete: callback
+		}).post();		
 	},
 	
 	loginAction: function(evnt) {

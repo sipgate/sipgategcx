@@ -90,7 +90,7 @@ var page = {
         }
 
 		if(uriList.indexOf(defaultExtensionPref) == -1) {
-			this.bgr.logBuffer.append('options: defaultExtensionPref is not in uriList. Setting defaultExtensionPref to defaultExtension');
+			this.bgr.logBuffer.append('options: defaultExtensionPref is not in uriList. Looking for new defaultExtension');
 			var defaultExtension;
 			if(this.bgr.backgroundProcess.defaultExtension && this.bgr.backgroundProcess.defaultExtension.voice && this.bgr.backgroundProcess.defaultExtension.voice.extensionSipUri)
 			{
@@ -100,6 +100,7 @@ var page = {
 			}
 			if(defaultExtension)
 			{
+				this.bgr.logBuffer.append('options: new defaultExtension found. setting to ' + defaultExtension); 
 				$('click2DialList').value = defaultExtension;
 				localStorage.setItem("defaultExtension", defaultExtension);
 			}

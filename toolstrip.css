@@ -34,17 +34,19 @@ ul.toolstripMenu li:hover {
 form#form_sendSMS fieldset {
 	margin-top: 5px;
 	background: #eee;
-	border: 1px solid #000;
+	border: 0;
 }
 
 form#form_sendSMS legend {
 	font-weight: bold;
+	color: navy;
 }
 
 form#form_sendSMS input[type=text],
 form#form_sendSMS select,
 form#form_sendSMS textarea {
 	width: 100%;
+	resize: none;
 }
 
 div#notLoggedIn label {

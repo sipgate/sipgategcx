@@ -62,6 +62,8 @@ var backgroundProcess = {
     currentSessionID: null,
     currentSessionData: null,
     currentSessionTime: null,
+    
+    getBalanceTimer: null,
 
     init: function() {
     	this.getVersionInfo(function(versionInfo) { this.extensionInfo = versionInfo }.bind(this));
@@ -398,6 +400,7 @@ var backgroundProcess = {
 	},
 	
 	getBalance: function getBalance() {
+		if(backgroundProcess.getBalanceTimer) clearTimeout(backgroundProcess.getBalanceTimer);
 
 		var onSuccess = function(res) {
 			logBuffer.append('### getBalance. Result received.');
@@ -425,7 +428,7 @@ var backgroundProcess = {
 			}
 			
 			var delay = recommendedIntervals["samurai.BalanceGet"];
-			backgroundProcess.getBalance.delay(delay * 1000);
+			backgroundProcess.getBalanceTimer = backgroundProcess.getBalance.delay(delay * 1000);
 			logBuffer.append("getBalance: polling enabled. set to " + delay + " seconds");			
 		};		
 		
@@ -433,7 +436,7 @@ var backgroundProcess = {
 	},		
 
     get systemArea() {
-    	return this.systemAreaRegEx.test(this.username) ? 'team' : 'classic';
+    	return this.systemAreaRegEx.test(username) ? 'team' : 'classic';
     },
     
     get version() {
