@@ -27,6 +27,7 @@ var page = {
 
 	init: function() {
 		this.bgr = chrome.extension.getBackgroundPage();		
+		this.appendToLog("app: " + navigator.appVersion + "\n");
 		this.appendToLog("username: " + this.bgr.username + "\n");
 		this.appendPreferencesToLog();
 //		this.appendAddonInfoToLog();

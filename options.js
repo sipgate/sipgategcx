@@ -1,6 +1,8 @@
 var page = {
 	bgr: chrome.extension.getBackgroundPage(),
 	init: function() {
+		this.changeTranslation();
+		
 		$$('#l .tabHead')[0].addClass('active');
 		$$('#r .tab')[0].removeClass('hidden').addClass('active');
 		
@@ -37,6 +39,25 @@ var page = {
 			}
 		});
 		
+		if($$('ul.c2dBox')[0]) {
+			var storageValue = localStorage.getItem('c2dcolor');
+			if(storageValue && storageValue.match(/^scheme/)) {
+				$$('ul.c2dBox nobr.' + storageValue).getParent('li').addClass('active');
+			} else {
+				$$('ul.c2dBox nobr.default').getParent('li').addClass('active');
+			}
+			$$('ul.c2dBox li').addEvent('click', function(evnt) {
+				var clickedOn = evnt.target;
+				if(clickedOn.get('tag') != 'li') {
+					clickedOn = clickedOn.getParent('li');
+				}
+				$$('ul.c2dBox li.active').removeClass('active');
+				clickedOn.addClass('active');
+				var value = clickedOn.getElement('nobr').get('class').split(' ').filter(function(v) { return v.match(/^scheme/); })[0];
+				localStorage.setItem('c2dcolor', value);
+			});
+		}
+		
 		$('savesetting').addEvent('click', function(evnt) {
 			var newSettings = new Hash({});
 			$$('.setting').each(function(el) {
@@ -64,6 +85,13 @@ var page = {
 		this.fillExtensionSelect();
 	},
 	
+	changeTranslation: function() {
+		$$('*[translation]').each(function(el) {
+			var key = "options_" + el.get('translation').trim();
+			el.set('text', chrome.i18n.getMessage(key));
+		});
+	},
+		
 	onStorage: function(settings)
 	{
 		if(settings.has("username") || settings.has("password"))

@@ -1,0 +1,118 @@
+body {
+	background-color: black;
+	margin:0;
+	padding:0;
+	font-family: Arial, sans-serif;
+	font-size:14px;
+	overflow:hidden;
+}
+.hidden {
+	visibility: hidden;
+	display: none;
+}
+#l {
+	color: #001F56;
+	width: 250px;
+	height: 100%;
+	float:left;
+	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#bbd4ff), color-stop(97%,#bbd4ff), color-stop(100%,#aaaaaa));
+	border-right: 1px solid #bbb;
+}
+#l h1 {
+	font-size:180%;
+	font-weight: normal;
+	padding: 15px 15px 15px 0;
+	margin: 0 5px;
+	border-bottom: 1px solid #5C8EE6;
+	text-align: right;
+	text-shadow: 1px 1px 1px #fff;
+}
+#l ul.tabs {
+	list-style: none;
+	padding: 0;
+}
+#l ul.tabs li {
+	font-size: 110%;
+	text-align: right;
+	padding: 7px 24px 7px 7px;
+	border-top: 1px solid transparent;
+	border-bottom: 1px solid transparent;
+}
+#l ul.tabs li:hover {
+	cursor: pointer;
+	background: -webkit-linear-gradient(left, #5C8EE6, rgba(201, 222, 255, 0) 88%);
+}
+#l ul.tabs li.active {
+	cursor: pointer;
+	background: #5C8EE6;
+	border-top: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+}
+#r {
+	background-color: white;
+	height: 100%;
+	padding-left: 270px;
+	padding-right: 10px;
+}
+#r .tabHead {
+	border-bottom: 1px solid #5C8EE6;	
+	font-size:180%;
+	font-weight: normal;
+	color: #001F56;
+	padding: 15px 0;
+}
+#r ul li {
+	display: -webkit-box;
+	-webkit-box-orient: horizontal;
+	vertical-align: middle;
+}
+#r .h {
+	font-weight:bold;
+	width: 150px;
+	text-align: right;
+	padding-right: 7px;
+	padding-top:5px;
+	padding-bottom:5px;
+	line-height: 20px;
+	vertical-align: middle;
+}
+#r .c {
+	padding-top:5px;
+	padding-bottom:5px;
+	-webkit-box-flex: 1;
+	vertical-align: middle;
+	
+}
+iframe {
+	border: 0;
+	width: 100%;
+}
+
+ul.c2dBox {
+	padding: 0;
+	margin: 0;
+}
+
+ul.c2dBox nobr {
+	padding: 0 4px;
+}
+
+ul.c2dBox li {
+	padding: 10px;
+	border: 1px solid #57585A;
+	float: left;
+	width: 125px;
+	text-align: center;
+	margin: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+ul.c2dBox li:hover {
+	background-color: #eee;
+}
+
+ul.c2dBox li.active {
+	background-color: #BBD4FF;
+	border: 1px solid #57585A;
+}
