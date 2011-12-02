@@ -90,6 +90,7 @@
 }
 
 .sipgateffx_dialBubble {
+	font-family: Arial, Helvetica, sans-serif;
 	font-size: 14px;
 	min-width: 250px;
 	min-height: 25px;
@@ -100,4 +101,55 @@
 	padding: 5px;
 	box-shadow: 2px 2px 10px 0px #000000;
 	position: absolute;
+}
+
+.sipgateffx_dialBubble_stateIcon {
+	float:left;
+}
+
+.sipgateffx_state_HUNGUP {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_hungup.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_ESTABLISHED {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_established.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_SECOND_DIAL,
+.sipgateffx_state_WAIT {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_wait.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_FAILED {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_failed.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_CALL_1_BUSY {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_lineXbusy.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_CALL_1_FAILED {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_lineXfail.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_CALL_2_BUSY {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_lineXbusy.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_CALL_2_FAILED {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_lineXfail.png') no-repeat;
+	width: 32px;
+	height: 32px;
+}
+.sipgateffx_state_FIRST_DIAL {
+	background:url('chrome-extension://__MSG_@@extension_id__/skin/c2d_pickup.png') no-repeat;
+	width: 32px;
+	height: 32px;
 }

@@ -280,7 +280,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if(request.action) {
 		switch(request.action) {
 			case 'setClick2DialText':
-				setStatusBubbleText(request.text);
+				setStatusBubbleText(request.text, request.cssclass);
 				break;
 			case 'removeClick2DialBubble':
 			    setTimeout(removeClick2dialInfoBubble, 5000);
@@ -532,10 +532,19 @@ function getPosition( oElement )
 function addClick2dialInfoBubble(bubble, number) {	
 	var bubblePosition = getPosition(bubble);
     var infoWindow = document.createElement("div");
-    infoWindow.innerHTML = chrome.i18n.getMessage("click2dial_notification", [number]);
     infoWindow.style.left = bubblePosition.x + 'px';
     infoWindow.style.top = bubblePosition.y + 'px';
     infoWindow.className = 'sipgateffx_dialBubble ' + click2dialBackground;
+    
+    var statusText = document.createElement("span");
+    statusText.className = 'sipgateffx_dialBubble_stateText';
+    statusText.innerHTML = chrome.i18n.getMessage("click2dial_notification", [number]);
+    infoWindow.appendChild(statusText);
+    
+    var statusIcon = document.createElement("div");
+    statusIcon.className = 'sipgateffx_dialBubble_stateIcon';
+    infoWindow.appendChild(statusIcon);
+    
     document.body.appendChild(infoWindow);
     setTimeout(moveClick2dialInfoBubble, 5000);
 }
@@ -586,14 +595,27 @@ function removeClick2dialInfoBubble() {
 	window.requestAnimationFrame(step);	
 }
 
-function createStatusBubble(text)
+function createStatusBubble(text, cssclass)
 {
     var infoWindow = document.createElement("div");
-    infoWindow.innerHTML = text;
-    infoWindow.style.position = "fixed";
+/*    infoWindow.innerHTML = text;
+*/    infoWindow.style.position = "fixed";
     infoWindow.style.bottom = '10px';
     infoWindow.style.right = '10px';
     infoWindow.className = 'sipgateffx_dialBubble ' + click2dialBackground;
+    if(cssclass) {
+    	infoWindow.className += ' sipgateffx_state_' + cssclass;
+    }
+    
+    var statusText = document.createElement("span");
+    statusText.className = 'sipgateffx_dialBubble_stateText';
+    statusText.innerHTML = text;
+    infoWindow.appendChild(statusText);    
+
+    var statusIcon = document.createElement("div");
+    statusIcon.className = 'sipgateffx_dialBubble_stateIcon sipgateffx_state_' + cssclass;
+    infoWindow.appendChild(statusIcon);
+      
     document.body.appendChild(infoWindow);
     
     return infoWindow;
@@ -602,14 +624,25 @@ function createStatusBubble(text)
 function getStatusBubbleText() {
 	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
 	if(elements.length == 0) { return ""; }
-	return elements[0].innerHTML;
+	return elements[0].getElementsByClassName('sipgateffx_dialBubble_stateText')[0].innerHTML;
 } 
 
-function setStatusBubbleText(text) {
+function setStatusBubbleText(text, cssclass) {
 	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
 	if(elements.length == 0) {
-		createStatusBubble(text);
+		createStatusBubble(text, cssclass);
+		return;
 	}
 	
-	elements[0].innerHTML = text;
+	elements[0].getElementsByClassName('sipgateffx_dialBubble_stateText')[0].innerHTML = text;
+	
+	var statusIcon = elements[0].getElementsByClassName('sipgateffx_dialBubble_stateIcon');
+    if(cssclass && statusIcon.length > 0) {
+	    statusIcon = statusIcon[0];
+    	if(statusIcon.className.match(/sipgateffx_state_/)) {
+    		statusIcon.className = statusIcon.className.replace(/(sipgateffx_state_\w*)/, 'sipgateffx_state_' + cssclass);
+    	} else {
+    		statusIcon.className += ' sipgateffx_state_' + cssclass;
+    	}
+    }	
 }

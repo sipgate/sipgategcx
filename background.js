@@ -179,12 +179,12 @@ var backgroundProcess = {
 
 				this.click2dialTabId = tabId;		
 				chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: chrome.i18n.getMessage("click2dial_status_WAIT")});
-				chrome.browserAction.setIcon({path:"skin/c2d_wait.gif"});		
+				chrome.browserAction.setIcon({path:"skin/c2d_wait.png"});		
 				this.getClick2DialStatus.delay(1000,this);
 			} else {
 				this.currentSessionID = null;
 				chrome.tabs.sendRequest(tabId, {action:'removeClick2DialBubble', text: chrome.i18n.getMessage("click2dial_status_FAILED")});
-				chrome.browserAction.setIcon({path:"skin/c2d_failed.gif"});		
+				chrome.browserAction.setIcon({path:"skin/c2d_failed.png"});		
 			}
 		}.bind(this);
 
@@ -237,31 +237,31 @@ var backgroundProcess = {
 					
 					switch(state) {
 						case 'ESTABLISHED':
-							this.changeIcon('skin/c2d_established.gif');
+							this.changeIcon('skin/c2d_established.png');
 							break;
 						case 'FAILED':
-							this.changeIcon('skin/c2d_failed.gif');
+							this.changeIcon('skin/c2d_failed.png');
 							break;
 						case 'HUNGUP':
-							this.changeIcon('skin/c2d_hungup.gif');
+							this.changeIcon('skin/c2d_hungup.png');
 							break;
 						case 'CALL_1_BUSY':
-							this.changeIcon('skin/c2d_line1busy.gif');
+							this.changeIcon('skin/c2d_lineXbusy.png');
 							break;
 						case 'CALL_1_FAILED':
-							this.changeIcon('skin/c2d_line1fail.gif');
+							this.changeIcon('skin/c2d_lineXfail.png');
 							break;
 						case 'CALL_2_BUSY':
-							this.changeIcon('skin/c2d_line2busy.gif');
+							this.changeIcon('skin/c2d_lineXbusy.png');
 							break;
 						case 'CALL_2_FAILED':
-							this.changeIcon('skin/c2d_line2fail.gif');
+							this.changeIcon('skin/c2d_lineXfail.png');
 							break;
 						case 'FIRST_DIAL':
-							this.changeIcon('skin/c2d_pickup.gif');
+							this.changeIcon('skin/c2d_pickup.png');
 							break;
 						default:
-							this.changeIcon('skin/c2d_wait.gif');
+							this.changeIcon('skin/c2d_wait.png');
 							break;
 					}
 					
@@ -276,13 +276,12 @@ var backgroundProcess = {
 							this.currentSessionTime = new Date().getTime();
 						}
 						var seconds = parseInt((new Date().getTime() - this.currentSessionTime) / 1000);
-						text = chrome.i18n.getMessage("click2dial_notification", [seconds]);
-						// text = chrome.i18n.getMessage("click2dial_status_ESTABLISHED", [seconds]);
+						text = chrome.i18n.getMessage("click2dial_status_ESTABLISHED", [seconds]);
 					} else {
 						text = chrome.i18n.getMessage(key);
 					}
 					
-					chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: text});
+					chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: text, cssclass: state});
 					
 					logBuffer.append(text);
 					
