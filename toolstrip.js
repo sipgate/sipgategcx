@@ -128,9 +128,17 @@ var page = {
 	},
 
 	init: function() {
+		this.changeTranslation();
 		this.addLoginEvent();
 		this.addToolstripMenuEvents();
 		this.checkForLogin();
+	},
+	
+	changeTranslation: function() {
+		$$('*[translation]').each(function(el) {
+			var key = "toolstrip_" + el.get('translation').trim();
+			el.set('text', chrome.i18n.getMessage(key));
+		});
 	},
 	
 	checkForLogin: function() {
@@ -228,9 +236,7 @@ var page = {
 	
 	logoutAction: function(evnt) {
 		evnt.stop();
-		bgr.username = null;
-		bgr.password = null;
-		bgr.loggedin = false;
+		bgr.backgroundProcess.logout();
 		DisplayManager.notloggedin();
 		chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});		
 	},

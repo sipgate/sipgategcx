@@ -1,3 +1,9 @@
+var username = null;
+var password = null;
+var loggedin = false;
+
+var curBalance;
+
 var logBuffer = {
 	capacity: 10000,
 	buffer: [],
@@ -46,27 +52,36 @@ var TOSMapping = {
 };
 
 var backgroundProcess = {
-	extensionInfo: {},
-	tosList: [
-        "voice",
-        "text",
-        "fax"
-    ],
-    
     samuraiServer: {'team': "https://api.sipgate.net/RPC2", 'classic': "https://samurai.sipgate.net/RPC2"},
     systemAreaRegEx: new RegExp(/^.+@.+\.[a-z]{2,6}$/),
-
-	ownUriList: {"voice": [], "text": [], "fax": []},
-    defaultExtension: {},
-    
-    currentSessionID: null,
-    currentSessionData: null,
-    currentSessionTime: null,
-    
-    getBalanceTimer: null,
+    click2dialTabId: null,
 
     init: function() {
+    	this.initVars();
     	this.getVersionInfo(function(versionInfo) { this.extensionInfo = versionInfo }.bind(this));
+    },
+    
+    initVars: function() {
+    	this.extensionInfo = {};
+    	this.tosList = [
+            "voice",
+            "text",
+            "fax"
+        ];
+    	
+    	this.ownUriList = {"voice": [], "text": [], "fax": []};
+    	this.defaultExtension = {};
+        
+    	this.currentSessionID = null;
+    	this.currentSessionData = null;
+    	this.currentSessionTime = null;
+        
+    	this.getBalanceTimer = null;
+    	
+		username = null;
+		password = null;
+		loggedin = false;
+		curBalance = null;    	
     },
     
     getVersionInfo: function(callback) {
@@ -95,7 +110,7 @@ var backgroundProcess = {
 		if(request.action) {
 			switch(request.action) {
 				case 'startClick2dial':
-					backgroundProcess.startClick2Dial(request.number);
+					backgroundProcess.startClick2Dial(request.number, sender.tab.id);
 					break;
 				case 'getParsingOptions':
 					response = {
@@ -109,8 +124,18 @@ var backgroundProcess = {
 		sendResponse(response);
 	},
 	
-	startClick2Dial: function(number) {
+	logout: function() {
+		this.initVars();
+	},
+	
+	startClick2Dial: function(number, tabId) {
 		logBuffer.append("Starting with click2dial for number: " + number);
+
+		if(!loggedin) {
+			alert(chrome.i18n.getMessage("click2dial_notloggedin"));
+			return;
+		}
+		
 		if(typeof(number) == "undefined" || !number) {
 			alert(chrome.i18n.getMessage("click2dial_missingNumber"));
 			return;
@@ -151,10 +176,14 @@ var backgroundProcess = {
     		logBuffer.append("SessionInitiate result: " + JSON.encode(res));
 			if (res.StatusCode && res.StatusCode == 200) {
 				this.currentSessionID = res.SessionID;
+
+				this.click2dialTabId = tabId;		
+				chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: chrome.i18n.getMessage("click2dial_status_WAIT")});
 				chrome.browserAction.setIcon({path:"skin/c2d_wait.gif"});		
 				this.getClick2DialStatus.delay(1000,this);
 			} else {
 				this.currentSessionID = null;
+				chrome.tabs.sendRequest(tabId, {action:'removeClick2DialBubble', text: chrome.i18n.getMessage("click2dial_status_FAILED")});
 				chrome.browserAction.setIcon({path:"skin/c2d_failed.gif"});		
 			}
 		}.bind(this);
@@ -190,7 +219,6 @@ var backgroundProcess = {
 	},
 	
 	getClick2DialStatus: function() {
-		logBuffer.append(this);
 		if(this.currentSessionID == null) {
 			logBuffer.append('click2dial is not initiated.');
 			return;
@@ -247,10 +275,14 @@ var backgroundProcess = {
 						if (this.currentSessionTime == null) {
 							this.currentSessionTime = new Date().getTime();
 						}
-						text = parseInt((new Date().getTime() - _sgffx.currentSessionTime) / 1000);
+						var seconds = parseInt((new Date().getTime() - this.currentSessionTime) / 1000);
+						text = chrome.i18n.getMessage("click2dial_notification", [seconds]);
+						// text = chrome.i18n.getMessage("click2dial_status_ESTABLISHED", [seconds]);
 					} else {
 						text = chrome.i18n.getMessage(key);
 					}
+					
+					chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: text});
 					
 					logBuffer.append(text);
 					
@@ -261,6 +293,7 @@ var backgroundProcess = {
 						this.currentSessionTime = null;
 						
 						this.changeIcon.delay(5000, this, ['skin/icon_sipgate_active.gif']);
+						chrome.tabs.sendRequest(this.click2dialTabId, {action:'removeClick2DialBubble'});
 
 						if (state == 'CALL_1_FAILED') {
 							alert(chrome.i18n.getMessage('click2dial_status_CALL_1_FAILED_detail'));
@@ -532,9 +565,6 @@ var restApi = {
 	}
 };
 
-	var username = null;
-	var password = null;
-	var loggedin = false;
 	var userCountryPrefix = '49';
 	var internationalPrefixes = {
 		"1": ["^011","^\\+"],
@@ -559,19 +589,17 @@ var restApi = {
 		"samurai.RecommendedIntervalGet": 60,
 		"samurai.EventSummaryGet": 60
 	};
-	
-	var curBalance;
 		
 	function doOnLoad()
 	{
 //		chrome.browserAction.setBadgeText({text: "foo"});
+		backgroundProcess.init();
     	username = localStorage.getItem('username');
 		password = localStorage.getItem('password');
 		if(username != null && password != null)
 		{
 			login();
 		}
-		backgroundProcess.init();
 	}
 	
 	function login(force)
