@@ -250,8 +250,10 @@ var allCountries = {
 	};
 var countryCodeRegex;
 
-var click2dialBackground = '#fff1b8';
+var click2dialBackground = '';
 var previewDialog = false; 
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
 
 function _prepareArray() {
 	var tmp="/^XXX";
@@ -269,6 +271,23 @@ chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
 	if(res.color) click2dialBackground = res.color;
 	if(res.preview) previewDialog = (res.preview=="true");
 	startRendering();
+});
+
+// TODO
+chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	if(!sender.tab) return;
+	var response = {};
+	if(request.action) {
+		switch(request.action) {
+			case 'setClick2DialText':
+				setStatusBubbleText(request.text);
+				break;
+			case 'removeClick2DialBubble':
+			    setTimeout(removeClick2dialInfoBubble, 5000);
+				break;
+		}
+	}
+	sendResponse(response);
 });
 
 function startRendering()
@@ -400,11 +419,12 @@ function sipgateffxCheckPhoneNumber(aNode)
             newNodeClick2DialIcon.className = 'sipgateFFXClick2DialBubbleIMG';
             spanNode.appendChild(newNodeClick2DialIcon);
             
-            spanNode.className = 'sipgateFFXClick2DialBubble';
+            spanNode.className = 'sipgateFFXClick2DialBubble ' + click2dialBackground;
 	        spanNode.title = "sipgate Click2Dial for " +  prettyNumber + (country ? ' ('+country+')' : '');
-	        spanNode.style.backgroundColor = click2dialBackground;
+//	        spanNode.style.backgroundColor = click2dialBackground;
 	        
 	        spanNode.addEventListener("click", sipgateffxCallClick);
+	        spanNode.addEventListener("contextmenu", sipgateffxCallClick);	        
 	        //spanNode.addEventListener("click", sipgateffxCallClick, true);
 	        //spanNode.addEventListener("contextmenu", sipgateffxCallRightClick, true);
 	        
@@ -475,6 +495,7 @@ function sipgateffxCallClick(e)
 {
 	try {
 		e.preventDefault();
+		
 	    var number = this.getAttribute("sipgateffx_number");
 	    if (!number) return;
 	    
@@ -482,6 +503,8 @@ function sipgateffxCallClick(e)
 	    	number = prompt(chrome.i18n.getMessage("previewnumber_dialog"), number);
 	    	if(!number) return;
 	    }
+
+		addClick2dialInfoBubble(e.target, number);
 	    
 	    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
 
@@ -493,4 +516,100 @@ function sipgateffxCallClick(e)
 
 function sipgateffxCallRightClick(e)
 {   
+}
+
+function getPosition( oElement )
+{
+	var pos = {x: 0, y: 0};
+	while( oElement != null ) {
+		pos.y += oElement.offsetTop;
+		pos.x += oElement.offsetLeft;
+		oElement = oElement.offsetParent;
+	}
+	return pos;
+}
+
+function addClick2dialInfoBubble(bubble, number) {	
+	var bubblePosition = getPosition(bubble);
+    var infoWindow = document.createElement("div");
+    infoWindow.innerHTML = chrome.i18n.getMessage("click2dial_notification", [number]);
+    infoWindow.style.left = bubblePosition.x + 'px';
+    infoWindow.style.top = bubblePosition.y + 'px';
+    infoWindow.className = 'sipgateffx_dialBubble ' + click2dialBackground;
+    document.body.appendChild(infoWindow);
+    setTimeout(moveClick2dialInfoBubble, 5000);
+}
+
+function moveClick2dialInfoBubble() {
+	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
+	var oldPosition = getPosition(elements[0]);
+	var size = {
+		x: elements[0].offsetWidth + 20,
+		y: elements[0].offsetHeight + 20
+	};
+	var start = +new Date();
+	var STEPS = 500;
+	var step = function(timestamp) {
+		var progress = timestamp - start;
+		var windowSize = {
+			x: document.body.offsetWidth,
+			y: window.innerHeight + document.body.scrollTop
+		};
+		var posX = ((windowSize.x - size.x - oldPosition.x) / STEPS * progress) + oldPosition.x;
+		var posY = ((windowSize.y - size.y - oldPosition.y) / STEPS * progress) + oldPosition.y;
+		elements[0].style.left = posX + "px";
+		elements[0].style.top = posY + "px";
+		if (progress < STEPS) {
+			window.requestAnimationFrame(step);
+		} else {
+			var text = getStatusBubbleText();
+			elements[0].parentNode.removeChild(elements[0]);
+			createStatusBubble(text);
+		}
+	}
+	window.requestAnimationFrame(step);
+}
+
+function removeClick2dialInfoBubble() {
+	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
+	
+	var start = +new Date();
+	var step = function(timestamp) {
+		var progress = timestamp - start;
+		elements[0].style.opacity = 1 - (Math.min(progress/2, 100) / 100);
+		if (progress < 200) {
+			window.requestAnimationFrame(step);
+		} else {
+			elements[0].parentNode.removeChild(elements[0]);
+		}
+	}
+	window.requestAnimationFrame(step);	
+}
+
+function createStatusBubble(text)
+{
+    var infoWindow = document.createElement("div");
+    infoWindow.innerHTML = text;
+    infoWindow.style.position = "fixed";
+    infoWindow.style.bottom = '10px';
+    infoWindow.style.right = '10px';
+    infoWindow.className = 'sipgateffx_dialBubble ' + click2dialBackground;
+    document.body.appendChild(infoWindow);
+    
+    return infoWindow;
+}
+
+function getStatusBubbleText() {
+	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
+	if(elements.length == 0) { return ""; }
+	return elements[0].innerHTML;
+} 
+
+function setStatusBubbleText(text) {
+	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
+	if(elements.length == 0) {
+		createStatusBubble(text);
+	}
+	
+	elements[0].innerHTML = text;
 }

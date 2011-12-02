@@ -1,0 +1,103 @@
+.sipgateFFXClick2DialBubble {
+	background-color: #fff1b8;
+	color: blue;
+	cursor: pointer !important;
+	border-radius: 3px;
+	border: 1px solid #aaa;
+}
+
+.sipgateFFXClick2DialBubbleIMG {
+	vertical-align: top;
+	cursor: pointer;
+	border: 0;
+	height: 16px;
+	width: 16px;		
+}
+
+.schemeA {
+	color: white;
+	background-color: #231F20;
+}
+
+.schemeB {
+	color: white;
+	background-color: #57585A;
+}
+
+.schemeC {
+	color: white;
+	background-color: #00AAAD;
+}
+
+.schemeD {
+	color: white;
+	background-color: #F04822;
+}
+
+.schemeE {
+	color: white;
+	background-color: #7FC241;
+}
+
+.schemeF {
+	color: white;
+	background-color: #0166B3;
+}
+
+.schemeG {
+	color: white;
+	background-color: #8781BD;
+}
+
+.schemeH {
+	color: white;
+	background-color: #660005;
+}
+
+.schemeI {
+	color: white;
+	background-color: #014F31;
+}
+
+.schemeJ {
+	color: white;
+	background-color: #ED0278;
+}
+
+.schemeK {
+	color: white;
+	background-color: #3CC0C4;
+}
+
+.schemeL {
+	color: white;
+	background-color: #AB7E52;
+}
+
+.schemeM {
+	color: #57585A;
+	background-color: #FECA0A;
+}
+
+.schemeN {
+	color: white;
+	background-color: #4B5C3E;
+}
+
+.schemeO {
+	color: white;
+	background-color: #004260;
+}
+
+.sipgateffx_dialBubble {
+	font-size: 14px;
+	min-width: 250px;
+	min-height: 25px;
+	text-align: center;
+	border: 2px solid #888888;
+	border-radius: 5px;
+	z-index: 2147483646;
+	padding: 5px;
+	box-shadow: 2px 2px 10px 0px #000000;
+	position: absolute;
+}

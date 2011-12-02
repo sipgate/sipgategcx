@@ -1,6 +1,6 @@
 {
 	"name": "__MSG_extTitle__",
-	"version": "0.6.99.3",
+	"version": "0.6.99.5",
 	"description": "__MSG_extDescription__",
 	"author": "rotmanov@sipgate.de",
 	"default_locale": "de",
@@ -34,8 +34,8 @@
 	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"css": ["bla.css"],
-			"js": ["bla.js"]
+			"css": ["sipgateffx_numberHighlight.css"],
+			"js": ["sipgateffx_numberHighlight.js"]
 		}
 	]
 }
