@@ -14,81 +14,6 @@
 	width: 16px;		
 }
 
-.schemeA {
-	color: white;
-	background-color: #231F20;
-}
-
-.schemeB {
-	color: white;
-	background-color: #57585A;
-}
-
-.schemeC {
-	color: white;
-	background-color: #00AAAD;
-}
-
-.schemeD {
-	color: white;
-	background-color: #F04822;
-}
-
-.schemeE {
-	color: white;
-	background-color: #7FC241;
-}
-
-.schemeF {
-	color: white;
-	background-color: #0166B3;
-}
-
-.schemeG {
-	color: white;
-	background-color: #8781BD;
-}
-
-.schemeH {
-	color: white;
-	background-color: #660005;
-}
-
-.schemeI {
-	color: white;
-	background-color: #014F31;
-}
-
-.schemeJ {
-	color: white;
-	background-color: #ED0278;
-}
-
-.schemeK {
-	color: white;
-	background-color: #3CC0C4;
-}
-
-.schemeL {
-	color: white;
-	background-color: #AB7E52;
-}
-
-.schemeM {
-	color: #57585A;
-	background-color: #FECA0A;
-}
-
-.schemeN {
-	color: white;
-	background-color: #4B5C3E;
-}
-
-.schemeO {
-	color: white;
-	background-color: #004260;
-}
-
 .sipgateffx_dialBubble {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 14px;
@@ -153,3 +78,132 @@
 	width: 32px;
 	height: 32px;
 }
+
+div.sipgateffx_pointer_wrapper {
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
+    box-shadow: -1px 15px 30px -11px black;
+    -webkit-box-shadow: -1px 15px 30px -11px black;
+}
+div.sipgateffx_pointer_box {
+    border: 3px solid #004B7D;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    padding: 0;
+    background-color: white;
+    margin-top: 12px;
+    overflow: hidden;
+    line-height: 18px;
+}
+div.sipgateffx_pointer {
+	border-color: transparent transparent  #004B7D transparent;
+	border-style: solid;
+	border-width: 10px;
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	top: -8px;
+	left: 13px;
+}
+
+.sipgateffx_pointer_close_footer {
+    font-size: 10px;
+    background-color: #004B7D;
+    color: white;
+    line-height: 24px;
+    padding: 0 10px;
+    text-align: right;
+    clear: both;
+}
+div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
+    color: white;
+}
+
+#sipgateffx_sendsms  {
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;
+	padding: 20px 20px 15px;
+}
+
+#sipgateffx_sendsms dl {
+	margin: 0px;
+}
+
+#sipgateffx_sendsms dd {
+	margin-left: 0px;
+}
+
+#sipgateffx_sendsms dt {
+	line-height: 16px;
+}
+
+#sipgateffx_sendsms label {
+	font-weight: bold;
+}
+
+#sipgateffx_sendsms select,
+#sipgateffx_sendsms input[type="text"],
+#sipgateffx_sendsms textarea {
+	border: 1px solid #CCC;
+	padding: 4px 5px;
+	margin: 4px 0 0 0;
+	-moz-box-shadow: inset 1px 1px 8px -5px #000000;
+	-webkit-box-shadow: inset 1px 1px 8px -5px #000000;
+	resize: none;
+	background: white;
+	width: 200px;
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;
+}
+
+#sipgateffx_sendsms textarea[name=message] {
+	height: 100px;
+	width: 190px;
+}
+
+#sipgateffx_sendsms .sipgateffx_pricedisclaimer {
+	margin-bottom: 20px;
+}
+
+#sipgateffx_sendsms .sipgateffx_sms_character_counter {
+	float: right;
+}
+
+#sipgateffx_sendsms .sipgateffx_sms_character_counter,
+#sipgateffx_sendsms .sipgateffx_hint {
+	line-height: 12px;
+	font-weight: normal;
+	color: #AAA;
+}
+
+#sipgateffx_sendsms #sipgateffx_sms_submit_button {
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;	
+	color: #000000;
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#ffffff),
+		to(#dadada));
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid #BBBBBB;
+	margin: 0px;
+	padding: 5px 10px;
+}
+
+.schemeA { color: white; background-color: #231F20; }
+.schemeB { color: white; background-color: #57585A; }
+.schemeC { color: white; background-color: #00AAAD; }
+.schemeD { color: white; background-color: #F04822; }
+.schemeE { color: white; background-color: #7FC241; }
+.schemeF { color: white; background-color: #0166B3; }
+.schemeG { color: white; background-color: #8781BD; }
+.schemeH { color: white; background-color: #660005; }
+.schemeI { color: white; background-color: #014F31; }
+.schemeJ { color: white; background-color: #ED0278; }
+.schemeK { color: white; background-color: #3CC0C4; }
+.schemeL { color: white; background-color: #AB7E52; }
+.schemeM { color: #57585A; background-color: #FECA0A; }
+.schemeN { color: white; background-color: #4B5C3E; }
+.schemeO { color: white; background-color: #004260; }

@@ -255,6 +255,87 @@ var previewDialog = false;
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
 
+var sipgateffx_hightlightnumber = {
+	SMSBubble: null,
+	getSMSWindow: function(content, number) {
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			  if (xhr.readyState == 4) {
+				  content.innerHTML = xhr.responseText;
+				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  }
+		};
+		xhr.open("GET", chrome.extension.getURL('/html/sms.html'), true);
+		xhr.send();	
+	},
+	openSMSBubble: function(number, evnt) {
+		evnt.preventDefault();
+		if(this.SMSBubble != null) {
+			this.closeSMSBubble();
+		}
+		
+		var sp_wrapper = document.createElement('div');
+		sp_wrapper.className = "sipgateffx_pointer_wrapper";
+		sp_wrapper.style.left = (evnt.pageX-18)+"px";
+		sp_wrapper.style.top = evnt.pageY+"px";
+
+		var sp = document.createElement('div');
+		sp.className = "sipgateffx_pointer";
+			
+		var sp_box = document.createElement('div');
+		sp_box.className = "sipgateffx_pointer_box";
+		
+		var content = document.createElement("div");
+		sp_box.appendChild(content);
+		this.getSMSWindow(content, number);
+		
+		/*
+		var number_text = document.createElement("div");
+		number_text.innerHTML = "Number:";
+		sp_box.appendChild(number_text);
+		
+		var number_input = document.createElement("input");
+		number_input.type = "text";
+		number_input.className = "sipgateffx_pointer_number";
+		sp_box.appendChild(number_input);
+
+		var message_text = document.createElement("div");
+		message_text.innerHTML = "Message:";
+		sp_box.appendChild(message_text);
+		
+		var message_input = document.createElement("textarea");
+		message_input.rows = "24";
+		message_input.cols = "80";
+		message_input.className = "sipgateffx_pointer_message";
+		sp_box.appendChild(message_input);
+		*/
+		
+		var sp_close_footer = document.createElement('div');
+		sp_close_footer.className = "sipgateffx_pointer_close_footer "+click2dialBackground;
+		
+		var sp_close_footer_link = document.createElement('a');
+		sp_close_footer_link.className = "sipgateffx_pointer_close_footer_link";
+		sp_close_footer_link.href = "#";
+		sp_close_footer_link.innerHTML = "Close";
+		sp_close_footer.appendChild(sp_close_footer_link);
+		sp_box.appendChild(sp_close_footer);
+		sp_close_footer.addEventListener("click", this.closeSMSBubble.bind(this));
+	
+		sp_wrapper.appendChild(sp_box);
+		sp_wrapper.appendChild(sp);
+	
+		this.SMSBubble = sp_wrapper;
+		document.body.appendChild(sp_wrapper);
+	},
+	
+	closeSMSBubble: function(evnt) {
+		if(typeof(evnt) != "undefined") evnt.preventDefault();
+		var el = this.SMSBubble;
+		el.parentNode.removeChild(el);
+		this.SMSBubble = null;
+	}
+};
+
 function _prepareArray() {
 	var tmp="/^XXX";
 	for(i in allCountries) {
@@ -424,7 +505,7 @@ function sipgateffxCheckPhoneNumber(aNode)
 //	        spanNode.style.backgroundColor = click2dialBackground;
 	        
 	        spanNode.addEventListener("click", sipgateffxCallClick);
-	        spanNode.addEventListener("contextmenu", sipgateffxCallClick);	        
+	        spanNode.addEventListener("contextmenu", sipgateffx_hightlightnumber.openSMSBubble.bind(sipgateffx_hightlightnumber, number));	        
 	        //spanNode.addEventListener("click", sipgateffxCallClick, true);
 	        //spanNode.addEventListener("contextmenu", sipgateffxCallRightClick, true);
 	        
@@ -512,10 +593,6 @@ function sipgateffxCallClick(e)
 		alert("Error in _sipgateffxCallClick(): "+ex);
 	}
     return;
-}
-
-function sipgateffxCallRightClick(e)
-{   
 }
 
 function getPosition( oElement )
