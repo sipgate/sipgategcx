@@ -59,6 +59,7 @@ var backgroundProcess = {
     init: function() {
     	this.initVars();
     	this.getVersionInfo(function(versionInfo) { this.extensionInfo = versionInfo }.bind(this));
+    	this.createContextMenu();
     },
     
     initVars: function() {
@@ -71,6 +72,10 @@ var backgroundProcess = {
     	
     	this.ownUriList = {"voice": [], "text": [], "fax": []};
     	this.defaultExtension = {};
+    	this.verifiedNumbers = {
+    			date: +new Date(),
+    			list: null
+    	};
         
     	this.currentSessionID = null;
     	this.currentSessionData = null;
@@ -101,6 +106,30 @@ var backgroundProcess = {
         }
     },
     
+    createContextMenu: function() {
+    	var parent = chrome.contextMenus.create({title: chrome.i18n.getMessage("contextMenu"), contexts: ["page", "selection"], "onclick": this.genericOnClick});
+    	chrome.contextMenus.create({"title": chrome.i18n.getMessage("contextMenu_sendTextAsSMS"), "parentId": parent, contexts: ["selection"], "onclick": this.contextMenu.sendAsSMS});
+    	chrome.contextMenus.create({"title": chrome.i18n.getMessage("contextMenu_sendSMSToText"), "parentId": parent, contexts: ["selection"], "onclick":  this.contextMenu.sendTo});
+    	chrome.contextMenus.create({"title": chrome.i18n.getMessage("contextMenu_callText"), "parentId": parent, contexts: ["selection"], "onclick":  this.contextMenu.callTo});
+    	chrome.contextMenus.create({"title": chrome.i18n.getMessage("contextMenu_selectForMore"), "parentId": parent});
+//    	chrome.contextMenus.create({"title": chrome.i18n.getMessage("contextMenu_blacklist"), "parentId": parent, "onclick": this.genericOnClick});
+    },
+	genericOnClick: function(info, tab) {
+		console.log("item " + info.menuItemId + " was clicked");
+		console.log(info);
+		console.log(tab);
+    },
+    contextMenu: {
+    	sendAsSMS: function(info, tab) {
+    		chrome.tabs.sendRequest(tab.id, {action:'sendTextAsSMS', text: info.selectionText});
+    	},
+    	sendTo: function(info, tab) {
+    		chrome.tabs.sendRequest(tab.id, {action:'sendSMSToText', number: info.selectionText});
+    	},
+    	callTo: function(info, tab) {
+    		chrome.tabs.sendRequest(tab.id, {action:'callText', number: info.selectionText});
+    	}
+    },
     /**
      * function that receives requests from content pages
      */
@@ -112,16 +141,26 @@ var backgroundProcess = {
 				case 'startClick2dial':
 					backgroundProcess.startClick2Dial(request.number, sender.tab.id);
 					break;
+				case 'sendSMS':
+					sendSMS(request.number, request.text, request.sender, sender.tab.id);
+					break;
 				case 'getParsingOptions':
 					response = {
 							parsing: localStorage.getItem("c2denabled"),
 							color: localStorage.getItem("c2dcolor"),
-							preview: localStorage.getItem("previewnumber")
+							preview: localStorage.getItem("previewnumber"),
+							systemArea: backgroundProcess.systemArea,
+							httpServer: sipgateCredentials.HttpServer,
+							smsSender: localStorage.getItem('smsSender')
 					};
+					break;
+				case 'getVerifiedNumbers':
+					response = null;
+					backgroundProcess.getVerifiedNumbers(sendResponse);
 					break;
 			}
 		}
-		sendResponse(response);
+		if(response != null) { sendResponse(response); }
 	},
 	
 	logout: function() {
@@ -465,8 +504,30 @@ var backgroundProcess = {
 		};		
 		
 		_rpcCall("samurai.BalanceGet", null, onSuccess);
-	},		
-
+	},
+	
+	getVerifiedNumbers: function getVerifiedNumbers(callback)
+	{
+		if(+new Date() - this.verifiedNumbers.date < 60000 && this.verifiedNumbers.list != null)
+		{
+			callback(this.verifiedNumbers.list);
+			return;
+		}
+		
+		var onSuccess = function(res) {
+			if (res.StatusCode && res.StatusCode == 200) {
+				if(res.NumbersList && typeof(callback) == "function") {
+					this.verifiedNumbers.list = res.NumbersList; 
+					callback(this.verifiedNumbers.list);
+				}
+			}
+		}.bind(this);
+			
+		var params = {};			
+		
+		_rpcCall("samurai.VerifiedNumbersGet", params, onSuccess);		
+	},
+	
     get systemArea() {
     	return this.systemAreaRegEx.test(username) ? 'team' : 'classic';
     },
@@ -591,7 +652,6 @@ var restApi = {
 		
 	function doOnLoad()
 	{
-//		chrome.browserAction.setBadgeText({text: "foo"});
 		backgroundProcess.init();
     	username = localStorage.getItem('username');
 		password = localStorage.getItem('password');
@@ -632,21 +692,59 @@ var restApi = {
 		_rpcCall("samurai.ServerdataGet", {}, onSuccess, onFail);
 	}
 	
-	function sendSMS(number, text)
+	function sendSMS(number, text, sender, tabId)
 	{
-		var remoteUri = "sip:"+ niceNumber(number) +"\@sipgate.net";
+		var remoteUri = '';
+		var apiFunction = '';
+
+		var numbers = number.split(',');
+
+		if(numbers.length == 1) {
+			apiFunction = 'SessionInitiate';
+			remoteUri = 'sip:'+ niceNumber(numbers[0]) +'@sipgate.net';
+		} else {
+			apiFunction = 'SessionInitiateMulti';
+			remoteUri = [];
+
+			for (var i = 0; i < numbers.length; i++) {
+				remoteUri.push('sip:'+ sipgateffx_sms.component.niceNumber(numbers[i]) +'@sipgate.net');
+			}
+		}
+
 		var params = { 'RemoteUri': remoteUri, 'TOS': "text", 'Content': text };
+
+		// set sender
+		if(typeof(sender) != "undefined" && sender != "") {
+			localStorage.setItem('smsSender', sender);			
+			params.LocalUri = 'sip:'+sender+'@sipgate.net';
+		}
 		
     	var onSuccess = function(res) {
     		logBuffer.append(res);
 			if (res.StatusCode && res.StatusCode == 200) {
-				notifyViews('smsSentSuccess');
+				if(tabId) {
+					chrome.tabs.sendRequest(tabId, {action:'smsSentSuccess'});
+				} else {
+					notifyViews('smsSentSuccess');
+				}
+			} else {
+				if(tabId) {
+					chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
+				} else {
+					notifyViews('smsSentFailed');
+				}
+			}
+		};
+		
+		var onFailure = function(res) {
+			if(tabId) {
+				chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
 			} else {
 				notifyViews('smsSentFailed');
 			}
 		};
 
-		_rpcCall("samurai.SessionInitiate", params, onSuccess);
+		_rpcCall("samurai."+apiFunction, params, onSuccess, onFailure);
 	}		
 
 	function _rpcCall(method, params, successCallback, failureCallback)

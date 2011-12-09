@@ -252,32 +252,68 @@ var countryCodeRegex;
 
 var click2dialBackground = '';
 var previewDialog = false; 
+var systemArea = "team";
+var senderNumberPref = "";
+var httpServer = "";
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
 
 var sipgateffx_hightlightnumber = {
+	sendingInProgress: false,
 	SMSBubble: null,
-	getSMSWindow: function(content, number) {
+	getSMSWindow: function(content, number, text) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
-			  if (xhr.readyState == 4) {
-				  content.innerHTML = xhr.responseText;
-				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  if (xhr.readyState != 4) {
+				  return;
 			  }
-		};
+			  if(xhr.status != 200) {
+				  sipgateffx_hightlightnumber.closeSMSBubble();
+				  return;
+			  }
+			  content.innerHTML = xhr.responseText;
+			  if(systemArea == "team")
+			  {
+				  chrome.extension.sendRequest({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
+			  } else {
+				  var label = document.getElementById("sipgateffx_sender-label");
+				  var element = document.getElementById("sipgateffx_sender-element");
+				  label.parentNode.removeChild(label);
+				  element.parentNode.removeChild(element);
+			  }
+			  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  if(typeof(text) != "undefined") {
+				  document.getElementById("sipgateffx_message").value = text.substring(0,160);
+				  this.bindMessageKeyUp();
+			  }
+			  document.getElementById("sipgateffx_message").addEventListener("keyup", this.bindMessageKeyUp.bind(this));
+			  document.getElementById("sipgateffx_sms_submit_button").addEventListener("click", this.bindSendMessageClick.bind(this));
+		}.bind(this);
 		xhr.open("GET", chrome.extension.getURL('/html/sms.html'), true);
 		xhr.send();	
 	},
-	openSMSBubble: function(number, evnt) {
+
+	openSMSBubbleOnClick: function(number, evnt) {
 		evnt.preventDefault();
+				
+		this.openSMSBubble(evnt.pageX-18, evnt.pageY, number);
+	},
+	
+	openSMSBubbleCentered: function(number, text) {
+		var top = window.getSelection().getRangeAt(0).commonAncestorContainer.offsetTop;
+		var center = (document.body.offsetWidth - 240) / 2;
+		this.openSMSBubble(center, top, number, text);
+	},
+	
+	openSMSBubble: function(whereX, whereY, number, text) {
 		if(this.SMSBubble != null) {
-			this.closeSMSBubble();
+			this.removeSMSBubbleFromDOM();
 		}
 		
 		var sp_wrapper = document.createElement('div');
+		this.SMSBubble = sp_wrapper;
+		this.SMSBubbleSetPosition(whereX, whereY);
 		sp_wrapper.className = "sipgateffx_pointer_wrapper";
-		sp_wrapper.style.left = (evnt.pageX-18)+"px";
-		sp_wrapper.style.top = evnt.pageY+"px";
 
 		var sp = document.createElement('div');
 		sp.className = "sipgateffx_pointer";
@@ -287,29 +323,8 @@ var sipgateffx_hightlightnumber = {
 		
 		var content = document.createElement("div");
 		sp_box.appendChild(content);
-		this.getSMSWindow(content, number);
-		
-		/*
-		var number_text = document.createElement("div");
-		number_text.innerHTML = "Number:";
-		sp_box.appendChild(number_text);
-		
-		var number_input = document.createElement("input");
-		number_input.type = "text";
-		number_input.className = "sipgateffx_pointer_number";
-		sp_box.appendChild(number_input);
-
-		var message_text = document.createElement("div");
-		message_text.innerHTML = "Message:";
-		sp_box.appendChild(message_text);
-		
-		var message_input = document.createElement("textarea");
-		message_input.rows = "24";
-		message_input.cols = "80";
-		message_input.className = "sipgateffx_pointer_message";
-		sp_box.appendChild(message_input);
-		*/
-		
+		this.getSMSWindow(content, number, text);
+				
 		var sp_close_footer = document.createElement('div');
 		sp_close_footer.className = "sipgateffx_pointer_close_footer "+click2dialBackground;
 		
@@ -324,16 +339,127 @@ var sipgateffx_hightlightnumber = {
 		sp_wrapper.appendChild(sp_box);
 		sp_wrapper.appendChild(sp);
 	
-		this.SMSBubble = sp_wrapper;
 		document.body.appendChild(sp_wrapper);
+		return sp_wrapper;
+	},
+	
+	SMSBubbleSetPosition: function (whereX, whereY) {
+		this.SMSBubble.style.left = whereX+"px";
+		this.SMSBubble.style.top = whereY+"px";
 	},
 	
 	closeSMSBubble: function(evnt) {
 		if(typeof(evnt) != "undefined") evnt.preventDefault();
-		var el = this.SMSBubble;
-		el.parentNode.removeChild(el);
+		
+		var start = +new Date();
+		var step = function(timestamp) {
+			var progress = timestamp - start;
+			this.SMSBubble.style.opacity = 1 - (Math.min(progress/2, 100) / 100);
+			if (progress < 200) {
+				window.requestAnimationFrame(step);
+			} else {
+				this.removeSMSBubbleFromDOM();
+			}
+		}.bind(this);
+		window.requestAnimationFrame(step);		
+	},
+	
+	removeSMSBubbleFromDOM: function() {
+		this.SMSBubble.parentNode.removeChild(this.SMSBubble);
 		this.SMSBubble = null;
+	},
+	
+	setVerifiedNumbers: function(res) {
+		if(typeof(res) != "undefined" && res != null && res.length > 0)
+		{
+			for (var i = 0; i < res.length; i++)
+			{
+				var entry = res[i];
+				document.getElementById("sipgateffx_sender").options.add(new Option('+' + entry.E164, entry.E164, false, false));				
+
+				if(entry.E164 == senderNumberPref) {
+					document.getElementById("sipgateffx_sender").value = senderNumberPref;
+				}
+			}
+
+			if(httpServer.match(/com$/)) {
+				document.getElementById("sipgateffx_sender").remove(0);
+				document.getElementById("sipgateffx_sender").selectedIndex = 0;
+			}			
+		}
+	},	
+	
+	bindMessageKeyUp: function(evnt) {
+		var textLength = document.getElementById("sipgateffx_message").value.length;
+		var smsLength = 160;
+		document.getElementById("sipgateffx_remainingchars_counter").innerText = (smsLength - textLength);		
+	},
+	
+	bindSendMessageClick: function(evnt) {
+		if(this.sendingInProgress) {
+			return;
+		}
+
+		var number = document.getElementById("sipgateffx_rect_number_sms_text-element").innerText;
+		var text = document.getElementById("sipgateffx_message").value;
+		var sender = null;
+
+		if(systemArea == 'classic') {
+			text = text.replace(/\n|\r/g, ' ');
+		}
+
+		if(number == "") {
+			alert(chrome.i18n.getMessage("smsMissingNumber"));
+			return;
+		}
+		if(text == "") {
+			alert(chrome.i18n.getMessage("smsMissingText"));
+			return;
+		}
+		// set sender
+		if(document.getElementById("sipgateffx_sender") && document.getElementById("sipgateffx_sender").value) {
+			sender = document.getElementById("sipgateffx_sender").value;
+		}
+		
+		chrome.extension.sendRequest({action: 'sendSMS', number: number, text: text, sender: sender}, function() {
+			this.sendingInProgress = true;
+			document.getElementById("sipgateffx_sendingInProgress_progressbar").removeAttribute("value");			
+			document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingInProgress");
+			document.getElementById("sipgateffx_sendsms").style.display = "none";
+			document.getElementById("sipgateffx_sendingInProgress").style.display = "block";
+		}.bind(this));
+
+		// set if scheduled
+		/*
+		 * TODO: Must be implemented in HTML form and here
+		 * 
+		if(document.getElementById("sipgate_sms_schedule_check").checked) {
+			var date = document.getElementById("sipgate_sms_schedule_date").dateValue;
+			var time = document.getElementById("sipgate_sms_schedule_time");	
+			date.setHours(time.hour);
+			date.setMinutes(time.minute);		
+			params.Schedule	= date;
+		}
+		*/
+	},
+	
+	onSentSMSSuccess: function onSentSMSSuccess() {
+		this.sendingInProgress = false;
+		document.getElementById("sipgateffx_sendingInProgress_progressbar").value = "1";
+		document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingSuccess");
+		setTimeout(this.closeSMSBubble.bind(this), 5000);		
+	},
+	
+	onSentSMSFailed: function onSentSMSFailed() {
+		this.sendingInProgress = false;
+		document.getElementById("sipgateffx_sendingInProgress_progressbar").value = "0";
+		document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingFailure");
+		setTimeout(function() {
+			document.getElementById("sipgateffx_sendsms").style.display = "block";
+			document.getElementById("sipgateffx_sendingInProgress").style.display = "none";			
+		}, 5000);		
 	}
+	
 };
 
 function _prepareArray() {
@@ -348,13 +474,14 @@ function _prepareArray() {
 _prepareArray();
 
 chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
-	if(res.parsing == "false") return;
 	if(res.color) click2dialBackground = res.color;
 	if(res.preview) previewDialog = (res.preview=="true");
-	startRendering();
+	if(res.parsing != "false") startRendering();	
+	if(res.systemArea) systemArea = res.systemArea;
+	if(res.httpServer) httpServer = res.httpServer;
+	if(res.smsSender) senderNumberPref = res.smsSender;
 });
 
-// TODO
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if(!sender.tab) return;
 	var response = {};
@@ -365,6 +492,21 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 				break;
 			case 'removeClick2DialBubble':
 			    setTimeout(removeClick2dialInfoBubble, 5000);
+				break;
+			case 'smsSentSuccess':
+				sipgateffx_hightlightnumber.onSentSMSSuccess();
+				break;
+			case 'smsSentFailed':
+				sipgateffx_hightlightnumber.onSentSMSFailed();
+				break;
+			case 'sendTextAsSMS':
+				sipgateffx_hightlightnumber.openSMSBubbleCentered(null, request.text);
+				break;
+			case 'sendSMSToText':
+				sipgateffx_hightlightnumber.openSMSBubbleCentered(request.number);
+				break;
+			case 'callText':
+				sipgateffxInitiateCall(window.getSelection().getRangeAt(0).commonAncestorContainer, request.number);
 				break;
 		}
 	}
@@ -420,11 +562,12 @@ function sipgateffxParseDOM(aNode, document)
 	    		sipgateffxCheckPhoneNumber(cand);
 	    	}
         } catch (e) {
-        	//alert('*** sipgateffx: sipgateffxCheckPhoneNumber ERROR ' + e);
+        	// alert('*** sipgateffx: sipgateffxCheckPhoneNumber ERROR ' + e);
         }		
     }
 	var t1 = new Date().getTime();
-	//alert('*** sipgateffx: Time for parsing the page with XPath: ' + (t1-t0));
+	// alert('*** sipgateffx: Time for parsing the page with XPath: ' +
+	// (t1-t0));
 	return 0;
 }
 
@@ -439,7 +582,8 @@ function sipgateffxCheckPhoneNumber(aNode)
     while(1)
     {
 	    if(i > 5) {
-	    	//alert('sipgateffxCheckPhoneNumber: too many iterations. exiting on "' + text.replace(/^\s+|\s+$/g, "") + '"');
+	    	// alert('sipgateffxCheckPhoneNumber: too many iterations. exiting
+			// on "' + text.replace(/^\s+|\s+$/g, "") + '"');
 	    	return 1;
 	    }
 	    
@@ -459,7 +603,8 @@ function sipgateffxCheckPhoneNumber(aNode)
 		    // the character before the number MUST be " ", ",", ";", ":", ""
 		    // otherwise we have a false positive
 		    if(pos > 0 && !text.substr(pos-1,1).match(/[\s,;:|]/)) {
-		    	//alert('sipgateffxCheckPhoneNumber: possible false negative found "' + text.replace(/^\s+|\s+$/g, "") + '"');
+		    	// alert('sipgateffxCheckPhoneNumber: possible false negative
+				// found "' + text.replace(/^\s+|\s+$/g, "") + '"');
 		    	return 1;
 		    }
 		    
@@ -471,7 +616,8 @@ function sipgateffxCheckPhoneNumber(aNode)
 		    }
 		    
 		    if(number.match(intBegin) && !countryCodeRegex.test(number.replace(nationalPrefix, ""))) {
-		    	//alert('sipgateffxCheckPhoneNumber: unknown country code on "' + number.replace(nationalPrefix, "") + '"');
+		    	// alert('sipgateffxCheckPhoneNumber: unknown country code on "'
+				// + number.replace(nationalPrefix, "") + '"');
 		    	return 1;
 		    }
 		    
@@ -502,12 +648,13 @@ function sipgateffxCheckPhoneNumber(aNode)
             
             spanNode.className = 'sipgateFFXClick2DialBubble ' + click2dialBackground;
 	        spanNode.title = "sipgate Click2Dial for " +  prettyNumber + (country ? ' ('+country+')' : '');
-//	        spanNode.style.backgroundColor = click2dialBackground;
+// spanNode.style.backgroundColor = click2dialBackground;
 	        
 	        spanNode.addEventListener("click", sipgateffxCallClick);
-	        spanNode.addEventListener("contextmenu", sipgateffx_hightlightnumber.openSMSBubble.bind(sipgateffx_hightlightnumber, number));	        
-	        //spanNode.addEventListener("click", sipgateffxCallClick, true);
-	        //spanNode.addEventListener("contextmenu", sipgateffxCallRightClick, true);
+	        spanNode.addEventListener("contextmenu", sipgateffx_hightlightnumber.openSMSBubbleOnClick.bind(sipgateffx_hightlightnumber, number));	        
+	        // spanNode.addEventListener("click", sipgateffxCallClick, true);
+	        // spanNode.addEventListener("contextmenu",
+			// sipgateffxCallRightClick, true);
 	        
         	spanNode.setAttribute("sipgateffx_number", number);
 
@@ -552,7 +699,7 @@ function niceNumber(_number) {
 			_number = _number.toString().replace(new RegExp(internationalPrefixes[natprefix].join('|')), "");
 		}
 
-		// -----------------------------------------------------			
+		// -----------------------------------------------------
 
 		var nationalPrefixCandidates = [
 			'^0([1-9]\\d+)'				// prefix like "0211 ..."
@@ -562,7 +709,7 @@ function niceNumber(_number) {
 
 		_number = _number.toString().replace(nationalPrefixRegEx, natprefix + "$1");
 
-		// -----------------------------------------------------	
+		// -----------------------------------------------------
 
 		_number = _number.toString().replace(/[^\d]/g, "");
 	} catch (ex) {
@@ -580,19 +727,24 @@ function sipgateffxCallClick(e)
 	    var number = this.getAttribute("sipgateffx_number");
 	    if (!number) return;
 	    
-	    if(previewDialog == true) {
-	    	number = prompt(chrome.i18n.getMessage("previewnumber_dialog"), number);
-	    	if(!number) return;
-	    }
-
-		addClick2dialInfoBubble(e.target, number);
-	    
-	    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
+	    sipgateffxInitiateCall(e.target, number);
 
 	} catch (ex) {
 		alert("Error in _sipgateffxCallClick(): "+ex);
 	}
     return;
+}
+
+function sipgateffxInitiateCall(target, number)
+{
+    if(previewDialog == true) {
+    	number = prompt(chrome.i18n.getMessage("previewnumber_dialog"), number);
+    	if(!number) return;
+    }
+
+	addClick2dialInfoBubble(target, number);
+    
+    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
 }
 
 function getPosition( oElement )
@@ -675,8 +827,9 @@ function removeClick2dialInfoBubble() {
 function createStatusBubble(text, cssclass)
 {
     var infoWindow = document.createElement("div");
-/*    infoWindow.innerHTML = text;
-*/    infoWindow.style.position = "fixed";
+/*
+ * infoWindow.innerHTML = text;
+ */    infoWindow.style.position = "fixed";
     infoWindow.style.bottom = '10px';
     infoWindow.style.right = '10px';
     infoWindow.className = 'sipgateffx_dialBubble ' + click2dialBackground;

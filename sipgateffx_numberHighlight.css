@@ -120,6 +120,13 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
     color: white;
 }
 
+#sipgateffx_sendingInProgress {
+	min-height: 200px;
+	min-width: 160px;
+	text-align: center;
+}
+
+#sipgateffx_sendingInProgress,
 #sipgateffx_sendsms  {
 	font-size: 12px;
 	font-family: Arial,Verdana,sans-serif;
@@ -166,11 +173,11 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	margin-bottom: 20px;
 }
 
-#sipgateffx_sendsms .sipgateffx_sms_character_counter {
+#sipgateffx_sendsms #sipgateffx_remainingchars_counter {
 	float: right;
 }
 
-#sipgateffx_sendsms .sipgateffx_sms_character_counter,
+#sipgateffx_sendsms #sipgateffx_remainingchars_counter,
 #sipgateffx_sendsms .sipgateffx_hint {
 	line-height: 12px;
 	font-weight: normal;
