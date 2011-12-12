@@ -261,6 +261,8 @@ window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequ
 var sipgateffx_hightlightnumber = {
 	sendingInProgress: false,
 	SMSBubble: null,
+	callBubble: null,
+	
 	getSMSWindow: function(content, number, text) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -268,7 +270,7 @@ var sipgateffx_hightlightnumber = {
 				  return;
 			  }
 			  if(xhr.status != 200) {
-				  sipgateffx_hightlightnumber.closeSMSBubble();
+				  this.closeSMSBubble();
 				  return;
 			  }
 			  content.innerHTML = xhr.responseText;
@@ -331,7 +333,7 @@ var sipgateffx_hightlightnumber = {
 		var sp_close_footer_link = document.createElement('a');
 		sp_close_footer_link.className = "sipgateffx_pointer_close_footer_link";
 		sp_close_footer_link.href = "#";
-		sp_close_footer_link.innerHTML = "Close";
+		sp_close_footer_link.innerHTML = chrome.i18n.getMessage("close");
 		sp_close_footer.appendChild(sp_close_footer_link);
 		sp_box.appendChild(sp_close_footer);
 		sp_close_footer.addEventListener("click", this.closeSMSBubble.bind(this));
@@ -458,6 +460,115 @@ var sipgateffx_hightlightnumber = {
 			document.getElementById("sipgateffx_sendsms").style.display = "block";
 			document.getElementById("sipgateffx_sendingInProgress").style.display = "none";			
 		}, 5000);		
+	},
+	
+	openCallBubbleOnClick: function(number, evnt) {
+		evnt.preventDefault();
+		this.openCallBubble(evnt.pageX-18, evnt.pageY, number);
+	},
+	
+	openCallBubbleCentered: function(number, text) {
+		var top = window.getSelection().getRangeAt(0).commonAncestorContainer.offsetTop;
+		var center = (document.body.offsetWidth - 240) / 2;
+		this.openCallBubble(center, top, number, text);
+	},
+	
+	openCallBubble: function(whereX, whereY, number) {	
+		if(this.callBubble != null) {
+			this.removeCallBubbleFromDOM();
+		}
+
+		var sp_wrapper = document.createElement('div');
+		this.callBubble = sp_wrapper;
+		this.callBubbleSetPosition(whereX, whereY);
+		sp_wrapper.className = "sipgateffx_pointer_wrapper";
+
+		var sp = document.createElement('div');
+		sp.className = "sipgateffx_pointer";
+			
+		var sp_box = document.createElement('div');
+		sp_box.className = "sipgateffx_pointer_box";
+		
+		var content = document.createElement("div");
+		sp_box.appendChild(content);
+		this.getCallWindow(content, number);
+
+		var sp_close_footer = document.createElement('div');
+		sp_close_footer.className = "sipgateffx_pointer_close_footer "+click2dialBackground;
+		
+		var sp_close_footer_link = document.createElement('a');
+		sp_close_footer_link.className = "sipgateffx_pointer_close_footer_link";
+		sp_close_footer_link.href = "#";
+		sp_close_footer_link.innerHTML = chrome.i18n.getMessage("close");
+		sp_close_footer.appendChild(sp_close_footer_link);
+		sp_box.appendChild(sp_close_footer);
+		sp_close_footer.addEventListener("click", this.closeCallBubble.bind(this));
+	
+		sp_wrapper.appendChild(sp_box);
+		sp_wrapper.appendChild(sp);
+	
+		document.body.appendChild(sp_wrapper);
+		return sp_wrapper;		
+	},
+	
+	closeCallBubble: function(evnt) {
+		if(typeof(evnt) != "undefined") evnt.preventDefault();
+		
+		var start = +new Date();
+		var step = function(timestamp) {
+			var progress = timestamp - start;
+			this.callBubble.style.opacity = 1 - (Math.min(progress/2, 100) / 100);
+			if (progress < 200) {
+				window.requestAnimationFrame(step);
+			} else {
+				this.removeCallBubbleFromDOM();
+			}
+		}.bind(this);
+		window.requestAnimationFrame(step);		
+	},
+	
+	removeCallBubbleFromDOM: function() {
+		this.callBubble.parentNode.removeChild(this.callBubble);
+		this.callBubble = null;		
+	},
+	
+	callBubbleSetPosition: function (whereX, whereY) {
+		this.callBubble.style.left = whereX+"px";
+		this.callBubble.style.top = whereY+"px";
+	},
+
+	getCallWindow: function(content, number, text) {
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			  if (xhr.readyState != 4) {
+				  return;
+			  }
+			  if(xhr.status != 200) {
+				  this.closeCallBubble();
+				  return;
+			  }
+			  content.innerHTML = xhr.responseText;
+/*			  if(systemArea == "team")
+			  {
+				  chrome.extension.sendRequest({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
+			  } else {
+				  var label = document.getElementById("sipgateffx_sender-label");
+				  var element = document.getElementById("sipgateffx_sender-element");
+				  label.parentNode.removeChild(label);
+				  element.parentNode.removeChild(element);
+			  }
+			  */
+			  if(typeof(number) != "undefined") {
+				  document.getElementById("sipgateffx_call_number").value = number;
+			  }
+			  document.getElementById("sipgateffx_call_submit_button").addEventListener("click", this.bindStartClick2Dial.bind(this));
+		}.bind(this);
+		xhr.open("GET", chrome.extension.getURL('/html/call.html'), true);
+		xhr.send();	
+	},
+	
+	bindStartClick2Dial: function(e) {
+		e.preventDefault();
 	}
 	
 };
@@ -727,7 +838,11 @@ function sipgateffxCallClick(e)
 	    var number = this.getAttribute("sipgateffx_number");
 	    if (!number) return;
 	    
-	    sipgateffxInitiateCall(e.target, number);
+	    if(previewDialog == true) {
+	    	sipgateffx_hightlightnumber.openCallBubbleOnClick(number, e);
+	    } else {	    
+	    	sipgateffxInitiateCall(e.target, number);
+	    }
 
 	} catch (ex) {
 		alert("Error in _sipgateffxCallClick(): "+ex);

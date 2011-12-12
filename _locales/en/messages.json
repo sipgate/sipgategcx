@@ -1,6 +1,7 @@
 {
 	"extDescription": {"message": "Merge your communication with your browser"},
 	"extTitle": {"message": "sipgate PREVIEW for Google Chrome"},
+	"close": {"message": "Close"},
 	"enterCredentials":  {"message": "Please enter your name and your password."},
 	"wrongCredentials":  {"message": "You've entered a wrong username and/or password."},
 	"smsMissingNumber":  {"message": "The number you have entered is invalid.\nThe process was aborted."},

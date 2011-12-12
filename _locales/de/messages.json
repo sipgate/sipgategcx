@@ -1,6 +1,7 @@
 {
 	"extDescription": {"message": "Kommunikation und Browser erfolgreich vereint"},
 	"extTitle": {"message": "sipgate PREVIEW für Google Chrome"},
+	"close": {"message": "Schließen"},
 	"enterCredentials":  {"message": "Bitte geben Sie Ihren Namen und Ihr Passwort ein."},
 	"wrongCredentials":  {"message": "Sie haben einen falschen Benutzernamen und/oder Passwort eingegeben."},
 	"smsMissingNumber":  {"message": "Sie müssen eine gültige Nummer angeben.\nSMS-Versand abgebrochen."},

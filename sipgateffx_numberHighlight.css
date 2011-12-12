@@ -87,14 +87,17 @@ div.sipgateffx_pointer_wrapper {
     -webkit-box-shadow: -1px 15px 30px -11px black;
 }
 div.sipgateffx_pointer_box {
-    border: 3px solid #004B7D;
-    border-radius: 6px;
-    -webkit-border-radius: 6px;
-    padding: 0;
-    background-color: white;
-    margin-top: 12px;
-    overflow: hidden;
-    line-height: 18px;
+	border: 3px solid #004B7D;
+	border-radius: 6px;
+	-webkit-border-radius: 6px;
+	padding: 0;
+	background-color: white;
+	margin-top: 12px;
+	overflow: hidden;
+	line-height: 18px;
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;
+	text-align: left;
 }
 div.sipgateffx_pointer {
 	border-color: transparent transparent  #004B7D transparent;
@@ -126,29 +129,34 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	text-align: center;
 }
 
+#sipgateffx_call,
 #sipgateffx_sendingInProgress,
 #sipgateffx_sendsms  {
-	font-size: 12px;
-	font-family: Arial,Verdana,sans-serif;
 	padding: 20px 20px 15px;
 }
 
+#sipgateffx_call dl,
 #sipgateffx_sendsms dl {
 	margin: 0px;
 }
 
+#sipgateffx_call dd,
 #sipgateffx_sendsms dd {
 	margin-left: 0px;
 }
 
+#sipgateffx_call dt,
 #sipgateffx_sendsms dt {
 	line-height: 16px;
 }
 
+#sipgateffx_call label,
 #sipgateffx_sendsms label {
 	font-weight: bold;
 }
 
+#sipgateffx_call input[type="text"],
+#sipgateffx_call select,
 #sipgateffx_sendsms select,
 #sipgateffx_sendsms input[type="text"],
 #sipgateffx_sendsms textarea {
@@ -162,6 +170,10 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	width: 200px;
 	font-size: 12px;
 	font-family: Arial,Verdana,sans-serif;
+}
+
+#sipgateffx_call input[name=callB] {
+	width: 190px;	
 }
 
 #sipgateffx_sendsms textarea[name=message] {
@@ -184,6 +196,7 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	color: #AAA;
 }
 
+#sipgateffx_call #sipgateffx_call_submit_button,
 #sipgateffx_sendsms #sipgateffx_sms_submit_button {
 	font-size: 12px;
 	font-family: Arial,Verdana,sans-serif;	
@@ -197,6 +210,10 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	border: 1px solid #BBBBBB;
 	margin: 0px;
 	padding: 5px 10px;
+}
+
+#sipgateffx_call #sipgateffx_call_submit_button {
+	margin-top: 15px;
 }
 
 .schemeA { color: white; background-color: #231F20; }
