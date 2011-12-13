@@ -1,17 +1,13 @@
 <dl id="sipgateffx_call">
-	<dt><b>Nummer anrufen:</b></dt>
-	<dd><input type="text" autofocus name="callB" id="sipgateffx_call_number"></dd>
-	<dt><b>von Telefon:</b></dt>
-	<dd class="select_extension" style="margin: 0px;">
-		<select id="call_ring" class="phone_select_caller">
-			<option value="1195576p0" label="Alle">Alle</option>
-			<option value="1195576x5" label="Handy: 0178-7777948">Handy: 0178-7777948</option>
-			<option value="1195576x1" label="Festnetz: 0211-63555548">Festnetz: 0211-63555548</option>
-			<option value="1195576x4" label="Skype: leachim2k">Skype: leachim2k</option>
+	<dt><label for="sipgateffx_call_number">Nummer anrufen:</label></dt>
+	<dd><input type="text" name="callB" id="sipgateffx_call_number" autofocus></dd>
+	<dt id="sipgateffx_call_phone-label"><label for="sipgateffx_call_phone">von Telefon:</label></dt>
+	<dd id="sipgateffx_call_phone-element">
+		<select id="sipgateffx_call_phone">
 		</select>
-		<div class="wrongnumbererror errorbox" style="margin-top: 10px; line-height: 18px; display: none;">Bitte geben Sie eine gültige Rufnummer ein.</div>
+		<div class="wrongnumbererror errorbox" style="display: none;">Bitte geben Sie eine gültige Rufnummer ein.</div>
 	</dd>
-	<dt>&nbsp;</dt>
+	<dt style="line-height:1px">&nbsp;</dt>
 	<dd>
 		<button type="submit" id="sipgateffx_call_submit_button">Anrufen</button>
 	</dd>

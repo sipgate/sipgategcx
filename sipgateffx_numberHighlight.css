@@ -143,6 +143,7 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 #sipgateffx_call dd,
 #sipgateffx_sendsms dd {
 	margin-left: 0px;
+	line-height: 16px;
 }
 
 #sipgateffx_call dt,
@@ -173,7 +174,8 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 }
 
 #sipgateffx_call input[name=callB] {
-	width: 190px;	
+	width: 190px;
+	margin-bottom: 20px;
 }
 
 #sipgateffx_sendsms textarea[name=message] {
@@ -212,8 +214,8 @@ div.sipgateffx_pointer_close_footer a.sipgateffx_pointer_close_footer_link {
 	padding: 5px 10px;
 }
 
-#sipgateffx_call #sipgateffx_call_submit_button {
-	margin-top: 15px;
+#sipgateffx_call #sipgateffx_call_phone-element {
+	margin-bottom: 15px;
 }
 
 .schemeA { color: white; background-color: #231F20; }

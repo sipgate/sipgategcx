@@ -139,7 +139,7 @@ var backgroundProcess = {
 		if(request.action) {
 			switch(request.action) {
 				case 'startClick2dial':
-					backgroundProcess.startClick2Dial(request.number, sender.tab.id);
+					backgroundProcess.startClick2Dial(request.number, request.extension, sender.tab.id);
 					break;
 				case 'sendSMS':
 					sendSMS(request.number, request.text, request.sender, sender.tab.id);
@@ -158,6 +158,11 @@ var backgroundProcess = {
 					response = null;
 					backgroundProcess.getVerifiedNumbers(sendResponse);
 					break;
+				case 'getExtensions':
+					response = null;
+					backgroundProcess.getExtensions(sendResponse);
+					break;
+					
 			}
 		}
 		if(response != null) { sendResponse(response); }
@@ -167,7 +172,7 @@ var backgroundProcess = {
 		this.initVars();
 	},
 	
-	startClick2Dial: function(number, tabId) {
+	startClick2Dial: function(number, extension, tabId) {
 		logBuffer.append("Starting with click2dial for number: " + number);
 
 		if(!loggedin) {
@@ -190,7 +195,22 @@ var backgroundProcess = {
 			return;
 		}
 
-		var from = this.getClick2DialFromExtension();
+		var userExtension = false;
+		if(typeof(extension) != "undefined" && extension != null)
+		{			
+		    for (var i = 0; i < this.ownUriList[TOSMapping.call].length; i++) {
+		    	if(extension == this.ownUriList[TOSMapping.call][i].SipUri) {
+		    		userExtension = true;
+		    		extension = {
+		    				extensionSipUri: extension,
+		    				alias: extension
+		    		};
+		    		break;
+		    	}
+			}
+		}
+
+		var from = (userExtension ? extension : this.getClick2DialFromExtension());
 		
 		if(from == null) {
 			alert(chrome.i18n.getMessage("click2dial_noDefaultExtension"));
@@ -233,7 +253,7 @@ var backgroundProcess = {
 	getClick2DialFromExtension: function()
 	{
 		var from = this.defaultExtension[TOSMapping.call];
-		
+
 		// check for custom defaultExtension
 	    var voiceList = this.ownUriList[TOSMapping.call];
 		var uriList = [];
@@ -443,11 +463,12 @@ var backgroundProcess = {
                                 'DefaultUri': res.OwnUriList[i].DefaultUri,
                                 'E164In': res.OwnUriList[i].E164In,
                                 'E164Out': res.OwnUriList[i].E164Out,
-                                'SipUri': res.OwnUriList[i].SipUri
+                                'SipUri': res.OwnUriList[i].SipUri,
+                                'DefaultUri': res.OwnUriList[i].DefaultUri
                             };
                             var tosType = res.OwnUriList[i].TOS[k];
                             backgroundProcess.ownUriList[tosType].push(extensionInfo);
-                            
+
                             if (res.OwnUriList[i].DefaultUri === true) {
                             	var defaultInfo = {
                                         'alias': (res.OwnUriList[i].UriAlias!='' ? res.OwnUriList[i].UriAlias : res.OwnUriList[i].SipUri),
@@ -528,7 +549,15 @@ var backgroundProcess = {
 		_rpcCall("samurai.VerifiedNumbersGet", params, onSuccess);		
 	},
 	
-    get systemArea() {
+	getExtensions: function getExtensions(callback)
+	{
+		if(typeof(callback) == "function")
+		{
+			callback([this.ownUriList, this.getClick2DialFromExtension()]);
+		}
+	},
+
+	get systemArea() {
     	return this.systemAreaRegEx.test(username) ? 'team' : 'classic';
     },
     
