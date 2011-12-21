@@ -1,88 +1,154 @@
 body {
-	background-color: black;
-	margin:0;
-	padding:0;
-	font-family: Arial, sans-serif;
-	font-size:14px;
-	overflow:hidden;
+	background-color: #f7f7f7
 }
+
+p,div,span,ul,li {
+	font-family: arial, helvetica, verdana, sans-serif;
+	color: #000000;
+	font-size: 13px;
+	line-height: 21px;
+}
+
+a:link,a:visited,a:hover,a:active {
+	color: #0063A7;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #ff7700;
+	text-decoration: none;
+}
+
+h2 {
+	font-family: georgia, "times new roman", times, serif;
+	font-weight: normal;
+	font-size: 24px;
+	border-bottom: 1px solid #eeeeee;
+	color: #666666;
+	margin: 0px 0 7px 0;
+	padding: 30px 0 10px 0;
+}
+
+h3 {
+	font-family: arial, helvetica, verdana, sans-serif;
+	font-weight: regular;
+	font-size: 16px;
+	color: #000000;
+	margin: 0 0 7px 0;
+	padding: 4px 0 0;
+}
+
+#page_container {
+	width: 700px;
+	margin: 50px auto;
+	padding: 30px;
+	background-color: white;
+	border: 1px solid #dddddd;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+
+p {
+	margin: 0 0 20px;
+	padding: 0;
+}
+
+ul {
+	margin: 0 0 20px;
+	padding-top: 0;
+}
+
+h1#logo {
+	background-image: url('skin/sipgategcx-logo.png');
+	background-position: 50% 5px;
+	background-repeat: no-repeat;
+	margin: 0;
+	padding: 65px 0px 30px;
+	font-family: georgia, "times new roman", times, serif;
+	font-weight: normal;
+	font-size: 24px;
+	text-align: center;
+	color: #666666;
+}
+
 .hidden {
 	visibility: hidden;
 	display: none;
 }
+
 #l {
 	color: #001F56;
-	width: 250px;
-	height: 100%;
-	float:left;
-	background: -webkit-gradient(linear, left top, right top, color-stop(0%,#bbd4ff), color-stop(97%,#bbd4ff), color-stop(100%,#aaaaaa));
-	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #bbb;
+	overflow: hidden;
 }
-#l h1 {
-	font-size:180%;
-	font-weight: normal;
-	padding: 15px 15px 15px 0;
-	margin: 0 5px;
-	border-bottom: 1px solid #5C8EE6;
-	text-align: right;
-	text-shadow: 1px 1px 1px #fff;
-}
+
 #l ul.tabs {
 	list-style: none;
-	padding: 0;
+	margin: 0 auto;
 }
+
 #l ul.tabs li {
-	font-size: 110%;
-	text-align: right;
-	padding: 7px 24px 7px 7px;
-	border-top: 1px solid transparent;
-	border-bottom: 1px solid transparent;
+	font-weight: bold;
+	float:left;
+	background: #F7F7F7;
+	text-align: center;
+	border: 1px solid #E0E0E0;
+	border-bottom: none;
+	padding: 3px 10px;
+	margin-right: 5px;
+	border-radius: 3px 3px 0 0;
 }
+
 #l ul.tabs li:hover {
 	cursor: pointer;
-	background: -webkit-linear-gradient(left, #5C8EE6, rgba(201, 222, 255, 0) 88%);
+	background-color: white;
 }
+
 #l ul.tabs li.active {
 	cursor: pointer;
-	background: #5C8EE6;
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #fff;
+	background-color: white;
 }
+
 #r {
 	background-color: white;
 	height: 100%;
 	padding-left: 270px;
 	padding-right: 10px;
 }
+
 #r .tabHead {
-	border-bottom: 1px solid #5C8EE6;	
-	font-size:180%;
+	border-bottom: 1px solid #5C8EE6;
+	font-size: 180%;
 	font-weight: normal;
 	color: #001F56;
 	padding: 15px 0;
 }
+
 #r ul li {
 	display: -webkit-box;
 	-webkit-box-orient: horizontal;
 	vertical-align: middle;
 }
+
 #r .h {
-	font-weight:bold;
+	font-weight: bold;
 	width: 150px;
 	text-align: right;
 	padding-right: 7px;
-	padding-top:5px;
-	padding-bottom:5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	line-height: 20px;
 	vertical-align: middle;
 }
+
 #r .c {
-	padding-top:5px;
-	padding-bottom:5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	-webkit-box-flex: 1;
 	vertical-align: middle;
-	
 }
+
 iframe {
 	border: 0;
 	width: 100%;

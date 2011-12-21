@@ -1,4 +1,4 @@
-.sipgateFFXClick2DialBubble {
+.sipgateGCXClick2DialBubble {
 	background-color: #fff1b8;
 	color: blue;
 	cursor: pointer !important;
@@ -6,7 +6,7 @@
 	border: 1px solid #aaa;
 }
 
-.sipgateFFXClick2DialBubbleIMG {
+.sipgateGCXClick2DialBubbleIMG {
 	vertical-align: top;
 	cursor: pointer;
 	border: 0;

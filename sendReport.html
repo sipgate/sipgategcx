@@ -79,17 +79,17 @@ var page = {
 
 	showLocalizedFileInfo: function() {
 		if (navigator.language.match(/^de/)) {
-			document.getElementById('redBox').innerHTML = 'Bitte senden Sie diesen Bericht <b>nicht</b>, wenn Sie sipgateFFX erwartungsgemäß funktioniert. Dieser Report dient ausschließlich der Fehlerbehebung!';
+			document.getElementById('redBox').innerHTML = 'Bitte senden Sie diesen Bericht <b>nicht</b>, wenn Sie sipgateGCX erwartungsgemäß funktioniert. Dieser Report dient ausschließlich der Fehlerbehebung!';
 
 			var msg = "";
-			msg += "Bitte schicken Sie den Inhalt des grauen Kastens per E-Mail an: <a href=\"mailto:support@support.sipgate.de?subject=" + escape("Statusbericht sipgateFFX") + "\">support@support.sipgate.de</a><BR>\n";
+			msg += "Bitte schicken Sie den Inhalt des grauen Kastens per E-Mail an: <a href=\"mailto:support@support.sipgate.de?subject=" + escape("Statusbericht sipgateGCX") + "\">support@support.sipgate.de</a><BR>\n";
 			document.getElementById('userMessage').innerHTML = msg;
 
 		} else {
-			document.getElementById('redBox').innerHTML = 'Please do <b>not</b> send this report, if you don\'t encounter any problems with sipgateFFX. This report is for troubleshooting purposes only!';
+			document.getElementById('redBox').innerHTML = 'Please do <b>not</b> send this report, if you don\'t encounter any problems with sipgateGCX. This report is for troubleshooting purposes only!';
 
 			var msg = "";
-			msg += "Please send the content of the gray box via email to <a href=\"mailto:support@support.sipgate.de?subject=" + escape("Status report sipgateFFX") + "\">support@support.sipgate.de</a><BR>\n";
+			msg += "Please send the content of the gray box via email to <a href=\"mailto:support@support.sipgate.de?subject=" + escape("Status report sipgateGCX") + "\">support@support.sipgate.de</a><BR>\n";
 			document.getElementById('userMessage').innerHTML = msg;
 
 		}

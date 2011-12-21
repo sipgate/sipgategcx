@@ -292,7 +292,7 @@ var backgroundProcess = {
 				if (res.StatusCode && res.StatusCode == 200) {
 					
 					var state = res.SessionStatus.toUpperCase().replace(/ /g,"_");
-					logBuffer.append('sipgateffx (click2dial): Status: ' + state);
+					logBuffer.append('sipgateGCX (click2dial): Status: ' + state);
 					
 					switch(state) {
 						case 'ESTABLISHED':
@@ -359,7 +359,7 @@ var backgroundProcess = {
 					}
 		
 				} else {
-					var msg = '### sipgateffx (click2dial): FAILED';
+					var msg = '### sipgateGCX (click2dial): FAILED';
 					if(res.faultCode && res.faultString) {
 						msg = msg + ' (faultCode: '+res.faultCode+' / faultString: '+res.faultString+')';
 					}

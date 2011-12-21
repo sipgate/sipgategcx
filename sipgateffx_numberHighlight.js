@@ -789,10 +789,10 @@ function sipgateffxCheckPhoneNumber(aNode)
             var newNodeClick2DialIcon = aNode.ownerDocument.createElement("IMG");
             // newNodeClick2DialIcon.align = "bottom";
             newNodeClick2DialIcon.src = chrome.extension.getURL("skin/icon_click2dial.gif");
-            newNodeClick2DialIcon.className = 'sipgateFFXClick2DialBubbleIMG';
+            newNodeClick2DialIcon.className = 'sipgateGCXClick2DialBubbleIMG';
             spanNode.appendChild(newNodeClick2DialIcon);
             
-            spanNode.className = 'sipgateFFXClick2DialBubble ' + click2dialBackground;
+            spanNode.className = 'sipgateGCXClick2DialBubble ' + click2dialBackground;
 	        spanNode.title = "sipgate Click2Dial for " +  prettyNumber + (country ? ' ('+country+')' : '');
 // spanNode.style.backgroundColor = click2dialBackground;
 	        
