@@ -271,11 +271,30 @@ var sipgateffx_hightlightnumber = {
 	
 	init: function init() {
 		this.prepareCountryRegex();
-		
+
 		this.regExp.nationalPrefix = new RegExp(internationalPrefixes[userCountryPrefix].join('|')+"|\\D", "g");		
-	    if(userCountryPrefix == "1") { this.regExp.intBegin = /^[\(\[]?\+|^[\(\[]?00|^011/; }		
+		if(userCountryPrefix == "1") { this.regExp.intBegin = /^[\(\[]?\+|^[\(\[]?00|^011/; }		
+
+		chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
+			if(res.color) click2dialBackground = res.color;
+			if(res.preview) previewDialog = (res.preview=="true");
+			if(res.parsing != "false") sipgateffx_hightlightnumber.startRendering();	
+			if(res.systemArea) systemArea = res.systemArea;
+			if(res.httpServer) httpServer = res.httpServer;
+			if(res.smsSender) senderNumberPref = res.smsSender;
+		});
+
+		if(document)
+		{
+			// this event may be used by third party script to reparse this site after some external DOM action (e.g. AJAX requests)
+			document.addEventListener('sipgateffxParseNumbers', function() {
+				setTimeout(sipgateffx_hightlightnumber.sipgateffxParseDOM.bind(sipgateffx_hightlightnumber), 0, document.body, document);
+			});
+		}
+
+
 	},
-	
+
 	prepareCountryRegex: function prepareCountryRegex() {
 		var tmp="^XXX";
 		for(i in allCountries) {
@@ -694,11 +713,8 @@ var sipgateffx_hightlightnumber = {
 		var t1 = new Date().getTime();
 		
 		// TODO: remove this line		
-		console.log((t1-t0));
+		// console.log((t1-t0));
 		
-		
-		// alert('*** sipgateffx: Time for parsing the page with XPath: ' +
-		// (t1-t0));
 		return 0;
 	},
 	
@@ -825,15 +841,6 @@ var sipgateffx_hightlightnumber = {
 };
 
 sipgateffx_hightlightnumber.init();
-
-chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
-	if(res.color) click2dialBackground = res.color;
-	if(res.preview) previewDialog = (res.preview=="true");
-	if(res.parsing != "false") sipgateffx_hightlightnumber.startRendering();	
-	if(res.systemArea) systemArea = res.systemArea;
-	if(res.httpServer) httpServer = res.httpServer;
-	if(res.smsSender) senderNumberPref = res.smsSender;
-});
 
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if(!sender.tab) return;
