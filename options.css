@@ -60,7 +60,7 @@ ul {
 }
 
 h1#logo {
-	background-image: url('skin/sipgategcx-logo.png');
+	background-image: url('skin/sipgateffx_logo.png');
 	background-position: 50% 5px;
 	background-repeat: no-repeat;
 	margin: 0;
@@ -113,8 +113,7 @@ h1#logo {
 #r {
 	background-color: white;
 	height: 100%;
-	padding-left: 270px;
-	padding-right: 10px;
+	padding: 20px;
 }
 
 #r .tabHead {
