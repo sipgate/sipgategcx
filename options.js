@@ -25,8 +25,16 @@ var page = {
 				}).send();
 			} else if(clickedOn.id == 'switch_log') {
 				$('logframe').src = 'sendReport.html';
-				$('logframe').height = ($('r').getSize().y-$('whatsnewframe').getPosition().y)  +'px';
 			}
+			
+			// do not show save button in different tabs
+			if(["switch_account", "switch_c2d"].indexOf(clickedOn.id) == -1)
+			{
+				$('savesetting').removeClass('active').addClass('hidden');
+			} else {
+				$('savesetting').removeClass('hidden').addClass('active');
+			}
+			
 		}.bindWithEvent());
 		
 		$$('.setting').each(function(el) {

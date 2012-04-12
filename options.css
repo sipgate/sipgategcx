@@ -1,8 +1,9 @@
 body {
-	background-color: #f7f7f7
+	background-color: #f7f7f7;
+	overflow-y: scroll;
 }
 
-p,div,span,ul,li {
+p,div,ul,li {
 	font-family: arial, helvetica, verdana, sans-serif;
 	color: #000000;
 	font-size: 13px;
@@ -57,10 +58,11 @@ p {
 ul {
 	margin: 0 0 20px;
 	padding-top: 0;
+	list-style: none;
 }
 
 h1#logo {
-	background-image: url('skin/sipgateffx_logo.png');
+	background-image: url('skin/sipgategcx_w_text_logo.png');
 	background-position: 50% 5px;
 	background-repeat: no-repeat;
 	margin: 0;
@@ -78,14 +80,43 @@ h1#logo {
 }
 
 #l {
-	color: #001F56;
-	border-bottom: 1px solid #bbb;
+	border-bottom: 1px solid #e0e0e0;
 	overflow: hidden;
 }
 
 #l ul.tabs {
 	list-style: none;
 	margin: 0 auto;
+}
+
+button {
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;	
+	color: #000000;
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#ffffff),
+		to(#dadada));
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid #BBBBBB;
+	margin: 0px;
+	padding: 5px 10px;
+}
+
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+	border: 1px solid #CCC;
+	padding: 4px 5px;
+	-moz-box-shadow: inset 1px 1px 8px -5px #000000;
+	-webkit-box-shadow: inset 1px 1px 8px -5px #000000;
+	resize: none;
+	background: white;
+	width: 200px;
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;
 }
 
 #l ul.tabs li {
@@ -117,11 +148,13 @@ h1#logo {
 }
 
 #r .tabHead {
-	border-bottom: 1px solid #5C8EE6;
-	font-size: 180%;
+	font-family: georgia, "times new roman", times, serif;
 	font-weight: normal;
-	color: #001F56;
-	padding: 15px 0;
+	font-size: 24px;
+	border-bottom: 1px solid #eeeeee;
+	color: #666666;
+	margin: 0px 0 7px 0;
+	padding: 30px 0 10px 0;
 }
 
 #r ul li {
@@ -137,7 +170,7 @@ h1#logo {
 	padding-right: 7px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	line-height: 20px;
+	line-height: 27px;
 	vertical-align: middle;
 }
 
@@ -146,6 +179,11 @@ h1#logo {
 	padding-bottom: 5px;
 	-webkit-box-flex: 1;
 	vertical-align: middle;
+}
+
+iframe#logframe
+{
+	height: 700px;
 }
 
 iframe {
@@ -162,15 +200,21 @@ ul.c2dBox nobr {
 	padding: 0 4px;
 }
 
-ul.c2dBox li {
+#r ul.c2dBox li {
 	padding: 10px;
 	border: 1px solid #57585A;
 	float: left;
-	width: 125px;
+	width: 120px;
 	text-align: center;
 	margin: 5px;
 	border-radius: 5px;
 	cursor: pointer;
+	display: block;
+}
+
+#r ul.c2dBox li img {
+	vertical-align: sub;
+	margin-left: 3px;
 }
 
 ul.c2dBox li:hover {
