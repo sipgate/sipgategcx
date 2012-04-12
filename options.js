@@ -15,8 +15,14 @@ var page = {
 			$(clickedOn.id.replace('switch', 'tab')).removeClass('hidden').addClass('active');
 			
 			if(clickedOn.id == 'switch_whatsnew') {
-				$('whatsnewframe').src = 'firststart/welcome_'+ (navigator.language.match(/^de/) ? 'de' : 'en') +'.html';
-				$('whatsnewframe').height = ($('r').getSize().y-$('whatsnewframe').getPosition().y)  +'px';
+
+				var whatsnewFile = '/whatsnew_'+ (navigator.language.match(/^de/) ? 'de' : 'en') +'.html';
+				var req = new Request({
+					url: chrome.extension.getURL(whatsnewFile),
+					onSuccess: function(data) {
+						$('whatsnew').set('html',data);
+					}
+				}).send();
 			} else if(clickedOn.id == 'switch_log') {
 				$('logframe').src = 'sendReport.html';
 				$('logframe').height = ($('r').getSize().y-$('whatsnewframe').getPosition().y)  +'px';
