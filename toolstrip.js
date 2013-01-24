@@ -15,39 +15,173 @@ var DisplayManager = {
 		$('page_sendSMS').removeClass('view_template');
 		SMSEditor.init();
 	}
-
-
 };
 
+
 var SMSEditor = {
-	eventsAdded: false,
+	initialized: false,
+	systemArea: null,
+	senderNumberPref: null,
+	httpServer: null,
 	
 	init: function() {
-	    $('sendSMS_number').focus();
-	    if(this.eventsAdded) return;
-	    
-	    if($('sendSMS_number')) {
-	    	$('sendSMS_number').addEvent('blur', this.onNumberFieldLeave.bind(this));
-	    }
-	    
-		if($('form_sendSMS')) {
-			$('form_sendSMS').addEvent('submit', this.onSendClick.bind(this));
+		this.senderNumberPref = localStorage.getItem('smsSender');
+		chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
+			if(res.systemArea) this.systemArea = res.systemArea;
+			if(res.httpServer) this.httpServer = res.httpServer;
+			
+			if(this.initialized) return;
+			this.getSMSWindow($('page_sendSMS'), null, null);
+			this.initialized = true;
+		}.bind(this));
+	},
+	
+	changeTranslation: function(bubble, prefix) {
+		var allElements = bubble.getElementsByTagName('*');
+		for (var i = 0; i < allElements.length; i++)
+		{
+			var value = allElements[i].getAttribute("translation");
+			if (value) {
+				allElements[i].innerHTML = chrome.i18n.getMessage(prefix +'_' +value.trim());
+			}
+		}
+	},
+	
+	getSMSWindow: function(content, number, text) {
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			  if (xhr.readyState != 4) {
+				  return;
+			  }
+			  if(xhr.status != 200) {
+				  this.closeSMSBubble();
+				  return;
+			  }
+			  content.innerHTML = xhr.responseText;
+			  if(this.systemArea == "team")
+			  {
+				  chrome.extension.sendRequest({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
+			  } else {
+				  var label = document.getElementById("sipgateffx_sender-label");
+				  var element = document.getElementById("sipgateffx_sender-element");
+				  label.parentNode.removeChild(label);
+				  element.parentNode.removeChild(element);
+			  }
+			  
+			  if(typeof(number) != "undefined" && number != null) {
+				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  } else {
+				  document.getElementById("sipgateffx_recipient").addEventListener("blur", this.onNumberFieldLeave.bind(this));
+			  }
+			  
+			  if(typeof(text) != "undefined" && text != null) {
+				  document.getElementById("sipgateffx_message").value = text.substring(0,160);
+				  this.bindMessageKeyUp();
+			  }
+			  document.getElementById("sipgateffx_message").addEventListener("keyup", this.bindMessageKeyUp.bind(this));
+			  document.getElementById("sipgateffx_sms_submit_button").addEventListener("click", this.bindSendMessageClick.bind(this));
+			  
+			  document.getElementById("sipgateffx_sms_submit_cancel").addEventListener("click", this.close.bind(this));
+			  
+			  
+			  this.changeTranslation(content, 'sms');
+		}.bind(this);
+		xhr.open("GET", chrome.extension.getURL('/html/sms.html'), true);
+		xhr.send();	
+	},
+
+	setVerifiedNumbers: function(res) {
+		if(typeof(res) != "undefined" && res != null && res.length > 0)
+		{
+			for (var i = 0; i < res.length; i++)
+			{
+				var entry = res[i];
+				document.getElementById("sipgateffx_sender").options.add(new Option('+' + entry.E164, entry.E164, false, false));				
+
+				if(entry.E164 == this.senderNumberPref) {
+					document.getElementById("sipgateffx_sender").value = this.senderNumberPref;
+				}
+			}
+
+			if(this.httpServer.match(/com$/)) {
+				document.getElementById("sipgateffx_sender").remove(0);
+				document.getElementById("sipgateffx_sender").selectedIndex = 0;
+			}			
+		}
+	},
+	
+	bindMessageKeyUp: function(evnt) {
+		var textLength = document.getElementById("sipgateffx_message").value.length;
+		var smsLength = 160;
+		document.getElementById("sipgateffx_remainingchars_counter").innerText = (smsLength - textLength);		
+	},
+
+	bindSendMessageClick: function(evnt) {
+		var number = this.getNumber();
+		var text = this.getText();
+		var sender = this.getSender();
+
+		if(this.systemArea == 'classic') {
+			text = text.replace(/\n|\r/g, ' ');
 		}
 
-		if($('form_sendSMS_cancel')) {
-			$('form_sendSMS_cancel').addEvent('click', this.close.bind(this));				
+		if(number == "") {
+			alert(chrome.i18n.getMessage("smsMissingNumber"));
+			return;
 		}
-
-		this.eventsAdded = true;
+		if(text == "") {
+			alert(chrome.i18n.getMessage("smsMissingText"));
+			return;
+		}
+		// set sender
+		if(document.getElementById("sipgateffx_sender") && document.getElementById("sipgateffx_sender").value) {
+			sender = document.getElementById("sipgateffx_sender").value;
+		}
 		
+		bgr.sendSMS(number, text, sender);
+		
+		document.getElementById("sipgateffx_sendingInProgress_progressbar").removeAttribute("value");			
+		document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingInProgress");
+		document.getElementById("sipgateffx_sendsms").style.display = "none";
+		document.getElementById("sipgateffx_sendingInProgress").style.display = "block";
+
+		// set if scheduled
+		/*
+		 * TODO: Must be implemented in HTML form and here
+		 * 
+		if(document.getElementById("sipgate_sms_schedule_check").checked) {
+			var date = document.getElementById("sipgate_sms_schedule_date").dateValue;
+			var time = document.getElementById("sipgate_sms_schedule_time");	
+			date.setHours(time.hour);
+			date.setMinutes(time.minute);		
+			params.Schedule	= date;
+		}
+		*/
 	},
 	
 	getNumber: function() {
-		return $('sendSMS_number').get('value').trim();
+		var number = '';
+		if(document.getElementById("sipgateffx_recipient"))
+		{
+			number = document.getElementById("sipgateffx_recipient").value;
+		} else {
+			number = document.getElementById("sipgateffx_rect_number_sms_text-element").innerText;
+		}
+		return number.trim();
 	},
 	
 	getText: function() {
-		return $('sendSMS_text').get('value').trim();
+		return document.getElementById("sipgateffx_message").value.trim();
+	},
+	
+	getSender: function()
+	{
+		var sender = null;
+		if(document.getElementById("sipgateffx_sender") && document.getElementById("sipgateffx_sender").value)
+		{
+			sender = document.getElementById("sipgateffx_sender").value;
+		}
+		return sender;
 	},
 	
 	onNumberFieldLeave: function() {
@@ -56,39 +190,25 @@ var SMSEditor = {
 		{
 			formatNumber(number, function(formatted) {
 				if(formatted && formatted[number] && formatted[number]['local']) {
-					$('sendSMS_number').set('value', formatted[number]['local']);
+					$('sipgateffx_recipient').set('value', formatted[number]['local']);
 				}
 			});
 		}		
 	},
 	
-	onSendClick: function(evnt) {
-	    evnt.stop();
-	    var number = this.getNumber();
-	    var text = this.getText();
-	    if(number == '' || number.match(/^[\d_\-\(\)\ ]*$/) == null) {
-			alert(chrome.i18n.getMessage("smsMissingNumber"));
-	    	return;
-	    }
-	    if(text == '') {
-			alert(chrome.i18n.getMessage("smsMissingText"));
-	    	return;
-	    }
-	    $('form_sendSMS').addClass('view_template');
-	    $('sendSMS_sending').removeClass('view_template');
-    	bgr.sendSMS(number, text);			
-	},
-	
 	onSentSuccess: function() {
-	    $('sendSMS_sending').addClass('view_template');
-	    $('sendSMS_success').removeClass('view_template');
+		document.getElementById("sipgateffx_sendingInProgress_progressbar").value = "1";
+		document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingSuccess");
 	    DisplayManager.menu.delay(2000);
 	},
 	
 	onSentFail: function() {
-	    $('form_sendSMS').removeClass('view_template');
-	    $('sendSMS_sending').addClass('view_template');
-	    $('sendSMS_failed').removeClass('view_template');
+		document.getElementById("sipgateffx_sendingInProgress_progressbar").value = "0";
+		document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingFailure");
+		setTimeout(function() {
+			document.getElementById("sipgateffx_sendsms").style.display = "block";
+			document.getElementById("sipgateffx_sendingInProgress").style.display = "none";			
+		}, 5000);		
 	},
 	
 	close: function() {

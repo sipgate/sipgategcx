@@ -1,0 +1,98 @@
+#sipgateffx_sendingInProgress {
+	min-height: 200px;
+	min-width: 160px;
+	text-align: center;
+}
+
+#sipgateffx_call,
+#sipgateffx_sendingInProgress,
+#sipgateffx_sendsms  {
+	padding: 20px 20px 15px;
+}
+
+#sipgateffx_call dl,
+#sipgateffx_sendsms dl {
+	margin: 0px;
+}
+
+#sipgateffx_call dd,
+#sipgateffx_sendsms dd {
+	margin-left: 0px;
+	line-height: 16px;
+}
+
+#sipgateffx_call dt,
+#sipgateffx_sendsms dt {
+	line-height: 16px;
+}
+
+#sipgateffx_call label,
+#sipgateffx_sendsms label {
+	font-weight: bold;
+}
+
+#sipgateffx_call input[type="text"],
+#sipgateffx_call select,
+#sipgateffx_sendsms select,
+#sipgateffx_sendsms input[type="text"],
+#sipgateffx_sendsms textarea {
+	border: 1px solid #CCC;
+	padding: 4px 5px;
+	margin: 4px 0 0 0;
+	-moz-box-shadow: inset 1px 1px 8px -5px #000000;
+	-webkit-box-shadow: inset 1px 1px 8px -5px #000000;
+	resize: none;
+	background: white;
+	width: 200px;
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;
+}
+
+#sipgateffx_call input[name=callB] {
+	width: 190px;
+	margin-bottom: 20px;
+}
+
+#sipgateffx_sendsms textarea[name=message] {
+	height: 100px;
+	width: 190px;
+}
+
+#sipgateffx_sendsms .sipgateffx_pricedisclaimer {
+	margin-bottom: 20px;
+}
+
+#sipgateffx_sendsms #sipgateffx_remainingchars_counter {
+	float: right;
+}
+
+#sipgateffx_sendsms #sipgateffx_remainingchars_counter,
+#sipgateffx_sendsms .sipgateffx_hint {
+	line-height: 12px;
+	font-weight: normal;
+	color: #AAA;
+}
+
+#sipgateffx_call #sipgateffx_call_submit_button,
+#sipgateffx_sendsms #sipgateffx_sms_submit_button {
+	font-size: 12px;
+	font-family: Arial,Verdana,sans-serif;	
+	color: #000000;
+	background: -webkit-gradient(
+		linear, left top, left bottom, 
+		from(#ffffff),
+		to(#dadada));
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid #BBBBBB;
+	margin: 0px;
+	padding: 5px 10px;
+}
+
+#sipgateffx_call #sipgateffx_call_phone-element {
+	margin-bottom: 15px;
+}
+
+#sipgateffx_sms_submit_cancel {
+	margin-left: 10px;
+}

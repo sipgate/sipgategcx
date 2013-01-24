@@ -85,6 +85,7 @@
 	"sms_errorbox": {"message": "Please check your input."},
 	"sms_sender": {"message": "Sender:"},
 	"sms_send": {"message": "Send SMS"},
+	"sms_cancel": {"message": "Cancel"},
 	"sms_sendingInProgress": {"message": "Sending message... Please stand by..."},
 	
 	"foo":  {"message": "bar"}

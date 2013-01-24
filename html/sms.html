@@ -2,12 +2,14 @@
 	enctype="application/x-www-form-urlencoded" action="" method="post">
 <dl>
 	<dt id="sipgateffx_rect_number_sms_text-label">
-		<label translation="recipient" for="rect_number_sms_text">Empfänger:</label></dt>
-	<dd id="sipgateffx_rect_number_sms_text-element"></dd>
+		<label translation="recipient" for="sipgateffx_recipient">Empfänger:</label></dt>
+	<dd id="sipgateffx_rect_number_sms_text-element">
+		<input type="text" name="recipient" id="sipgateffx_recipient" autofocus>
+	</dd>
 	<dt id="sipgateffx_remainingchars-label">&nbsp;</dt>
 	<dd id="sipgateffx_remainingchars-element"><span
 		id="sipgateffx_remainingchars_counter">160</span></dd>
-	<dt id="sipgateffx_message-label"><label translation="message" for="message">Nachricht</label></dt>
+	<dt id="sipgateffx_message-label"><label translation="message" for="sipgateffx_message">Nachricht</label></dt>
 	<dd id="sipgateffx_message-element"><textarea name="message" id="sipgateffx_message" autofocus maxlength="160"></textarea>
 	<div translation="price" class="sipgateffx_hint sipgateffx_pricedisclaimer">7,9ct für diese SMS</div>
 	<div translation="errorbox" class="sipgateffx_errorbox" style="display: none">Bitte überprüfen Sie die markierten Felder.</div>
@@ -21,6 +23,7 @@
 	<dt id="sipgateffx_sms_submit_button-label">&nbsp;</dt>
 	<dd id="sipgateffx_sms_submit_button-element">
 		<button translation="send" name="sms_submit_button" id="sipgateffx_sms_submit_button" type="button" class="sipgateffx_voice_button voice_button_disabled">SMS senden</button>
+		<a href="javascript:;" translation="cancel" id="sipgateffx_sms_submit_cancel">Cancel</a>
 	</dd>
 </dl>
 </form>

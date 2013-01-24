@@ -350,13 +350,19 @@ var sipgateffx_hightlightnumber = {
 				  label.parentNode.removeChild(label);
 				  element.parentNode.removeChild(element);
 			  }
-			  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  if(typeof(number) != "undefined") {
+				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+			  }
+
 			  if(typeof(text) != "undefined") {
 				  document.getElementById("sipgateffx_message").value = text.substring(0,160);
 				  this.bindMessageKeyUp();
 			  }
 			  document.getElementById("sipgateffx_message").addEventListener("keyup", this.bindMessageKeyUp.bind(this));
 			  document.getElementById("sipgateffx_sms_submit_button").addEventListener("click", this.bindSendMessageClick.bind(this));
+			  
+			  document.getElementById("sipgateffx_sms_submit_cancel").addEventListener("click", this.closeSMSBubble.bind(this));
+			  
 			  this.changeTranslation(content, 'sms');
 		}.bind(this);
 		xhr.open("GET", chrome.extension.getURL('/html/sms.html'), true);

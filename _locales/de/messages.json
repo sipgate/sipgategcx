@@ -85,6 +85,7 @@
 	"sms_errorbox": {"message": "Bitte überprüfen Sie die markierten Felder."},
 	"sms_sender": {"message": "Absender:"},
 	"sms_send": {"message": "SMS senden"},
+	"sms_cancel": {"message": "Abbrechen"},
 	"sms_sendingInProgress": {"message": "Die SMS wird versendet..."},
 	
 	"foo":  {"message": "bar"}

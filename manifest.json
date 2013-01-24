@@ -43,7 +43,7 @@
 	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"css": ["sipgateffx_numberHighlight.css"],
+			"css": ["sipgateffx_numberHighlight.css", "content/css/sms.css"],
 			"js": ["sipgateffx_numberHighlight.js"]
 		}
 	],
