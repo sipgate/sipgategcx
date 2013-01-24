@@ -37,7 +37,10 @@
 	"previewnumber_dialog":  {"message": "Diese Rufnummer wird gleich gewählt:"},	
 	"options_saved":  {"message": "Die Einstellungen wurden gespeichert."},
 	
-	"toolstrip_balance":  {"message": "Aktuelles Guthaben:"},	
+	"toolstrip_links":  {"message": "Links:"},	
+	"toolstrip_username":  {"message": "E-Mail / Web-Benutzername:"},	
+	"toolstrip_password":  {"message": "Passwort:"},	
+	"toolstrip_balance":  {"message": "Guthaben:"},	
 	"toolstrip_wait":  {"message": "... warten ..."},	
 	"toolstrip_dialnumber":  {"message": "Telefonnummer wählen..."},	
 	"toolstrip_sendSMS":  {"message": "SMS verschicken..."},	
@@ -47,10 +50,10 @@
 	"toolstrip_checkvoicemail":  {"message": "Sprachnachrichten abrufen"},	
 	"toolstrip_showcontacts":  {"message": "Kontakte anzeigen"},
 	"toolstrip_itemizedbills":  {"message": "Einzelverbindungsnachweis"},
-	"toolstrip_refreshbalance":  {"message": "Kontostand aktualisieren"},	
+	"toolstrip_refreshbalance":  {"message": "Aktualisieren"},	
 	"toolstrip_preferences":  {"message": "Einstellungen"},	
 	"toolstrip_logout":  {"message": "Abmelden"},
-		
+	
 	"options_account": {"message": "Account"},
 	"options_click2dial": {"message": "click2dial"},
 	"options_click2dialBlacklist": {"message": "click2dial Blacklist"},
@@ -62,7 +65,7 @@
 	"options_account": {"message": "Account"},
 	"options_username": {"message": "Benutzername"},
 	"options_password": {"message": "Passwort"},
-	"options_click2dialHighlightColor": {"message": "Color for click2dial highlightning"},
+	"options_click2dialHighlightColor": {"message": "Farbe der click2dial-Links"},
 	"options_click2dialPhone": {"message": "Click2Dial-Phone"},
 	"options_click2dialBlacklistHeader": {"message": "Folgendes wird aus der Rufnummererkennung ausgeschlossen"},
 	"options_click2dialBlacklistRemove": {"message": "Entfernen"},
@@ -70,6 +73,19 @@
 	"options_closeSettings": {"message": "Einstellungen schließen"},
 	"options_change": {"message": "Ändern"},
 	"options_sample": {"message": "01234-567890"},
+	
+	"call_callthis": {"message": "Nummer anrufen:"},
+	"call_originphone": {"message": "von Telefon:"},
+	"call_wrongnumbererror": {"message": "Bitte geben Sie eine gültige Rufnummer ein."},
+	"call_startcall": {"message": "Anrufen"},
+	
+	"sms_recipient": {"message": "Empfänger:"},
+	"sms_message": {"message": "Nachricht"},
+	"sms_price": {"message": "7,9ct für diese SMS"},
+	"sms_errorbox": {"message": "Bitte überprüfen Sie die markierten Felder."},
+	"sms_sender": {"message": "Absender:"},
+	"sms_send": {"message": "SMS senden"},
+	"sms_sendingInProgress": {"message": "Die SMS wird versendet..."},
 	
 	"foo":  {"message": "bar"}
 }

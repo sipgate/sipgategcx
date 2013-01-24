@@ -304,6 +304,32 @@ var sipgateffx_hightlightnumber = {
 		this.regExp.countryCodeRegex = new RegExp(tmp);
 	},
 	
+	changeTranslation: function(bubble, prefix) {
+		var allElements = bubble.getElementsByTagName('*');
+		for (var i = 0; i < allElements.length; i++)
+		{
+			var value = allElements[i].getAttribute("translation");
+			if (value) {
+				allElements[i].innerHTML = chrome.i18n.getMessage(prefix +'_' +value.trim());
+			}
+		}
+	},
+	
+	hideBubble: function(bubble, callbackEnd)
+	{
+		var start = window.performance.now();
+		var step = function(timestamp) {
+			var progress = timestamp - start;
+			bubble.style.opacity = 1 - (Math.min(progress/2, 100) / 100);
+			if (progress < 200) {
+				window.requestAnimationFrame(step);
+			} else {
+				if(typeof(callbackEnd) == "function") callbackEnd();
+			}
+		}.bind(this);
+		window.requestAnimationFrame(step);		
+	},
+		
 	getSMSWindow: function(content, number, text) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -331,6 +357,7 @@ var sipgateffx_hightlightnumber = {
 			  }
 			  document.getElementById("sipgateffx_message").addEventListener("keyup", this.bindMessageKeyUp.bind(this));
 			  document.getElementById("sipgateffx_sms_submit_button").addEventListener("click", this.bindSendMessageClick.bind(this));
+			  this.changeTranslation(content, 'sms');
 		}.bind(this);
 		xhr.open("GET", chrome.extension.getURL('/html/sms.html'), true);
 		xhr.send();	
@@ -393,18 +420,7 @@ var sipgateffx_hightlightnumber = {
 	
 	closeSMSBubble: function(evnt) {
 		if(typeof(evnt) != "undefined") evnt.preventDefault();
-		
-		var start = +new Date();
-		var step = function(timestamp) {
-			var progress = timestamp - start;
-			this.SMSBubble.style.opacity = 1 - (Math.min(progress/2, 100) / 100);
-			if (progress < 200) {
-				window.requestAnimationFrame(step);
-			} else {
-				this.removeSMSBubbleFromDOM();
-			}
-		}.bind(this);
-		window.requestAnimationFrame(step);		
+		this.hideBubble(this.SMSBubble, this.removeSMSBubbleFromDOM.bind(this));
 	},
 	
 	removeSMSBubbleFromDOM: function() {
@@ -558,18 +574,7 @@ var sipgateffx_hightlightnumber = {
 	
 	closeCallBubble: function(evnt) {
 		if(typeof(evnt) != "undefined") evnt.preventDefault();
-		
-		var start = +new Date();
-		var step = function(timestamp) {
-			var progress = timestamp - start;
-			this.callBubble.style.opacity = 1 - (Math.min(progress/2, 100) / 100);
-			if (progress < 200) {
-				window.requestAnimationFrame(step);
-			} else {
-				this.removeCallBubbleFromDOM();
-			}
-		}.bind(this);
-		window.requestAnimationFrame(step);		
+		this.hideBubble(this.callBubble, this.removeCallBubbleFromDOM.bind(this));
 	},
 	
 	removeCallBubbleFromDOM: function() {
@@ -585,6 +590,7 @@ var sipgateffx_hightlightnumber = {
 	getCallWindow: function(content, number, text) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
+			
 			  if (xhr.readyState != 4) {
 				  return;
 			  }
@@ -592,12 +598,13 @@ var sipgateffx_hightlightnumber = {
 				  this.closeCallBubble();
 				  return;
 			  }
-			  content.innerHTML = xhr.responseText;
+			  content.innerHTML = xhr.responseText;  
 			  chrome.extension.sendRequest({action: 'getExtensions'}, this.setExtensions.bind(this));
 			  if(typeof(number) != "undefined") {
 				  document.getElementById("sipgateffx_call_number").value = number;
 			  }
 			  document.getElementById("sipgateffx_call_submit_button").addEventListener("click", this.bindStartClick2Dial.bind(this));
+			  this.changeTranslation(content, 'call');
 		}.bind(this);
 		xhr.open("GET", chrome.extension.getURL('/html/call.html'), true);
 		xhr.send();	
@@ -647,19 +654,25 @@ var sipgateffx_hightlightnumber = {
 	    chrome.extension.sendRequest({action: 'startClick2dial', number: number, extension: extension});		
 	},
 	
-	startRendering: function startRendering()
+	startRendering: function startRendering(contentDocument)
 	{
-		
+		var doc;
 		try {
-			if (!document.body || document.body.className.match(/editable/)) {
+			if (typeof contentDocument != 'undefined')
+			{
+				doc = contentDocument;
+			} else {
+				doc = document;
+			}
+			if (!doc.body || doc.body.className.match(/editable/)) {
 				return;
 			}
 			
-			if(this.isSiteAlreadyParsed()) return;
+			if(this.isSiteAlreadyParsed(doc)) return;
 			
-			this.addAlreadyParsedFlag();
+			this.addAlreadyParsedFlag(doc);
 
-			setTimeout(this.sipgateffxParseDOM.bind(this), 0, document.body, document);
+			setTimeout(this.sipgateffxParseDOM.bind(this), 0, doc.body, doc);
 			
 		} catch(e) {
 			console.log(e.stack);
@@ -667,9 +680,9 @@ var sipgateffx_hightlightnumber = {
 		}
 	},
 	
-	isSiteAlreadyParsed: function()
+	isSiteAlreadyParsed: function(doc)
 	{
-		var metaItems = document.getElementsByTagName('meta');  
+		var metaItems = doc.getElementsByTagName('meta');  
 		for (var i=0; i<metaItems.length; i++)
 		{
 			if (metaItems[i].getAttribute('name') == "sipgateffx_click2dial") return true;
@@ -677,12 +690,12 @@ var sipgateffx_hightlightnumber = {
 		return false;
 	},
 	
-	addAlreadyParsedFlag: function()
+	addAlreadyParsedFlag: function(doc)
 	{
-		var headItems = document.getElementsByTagName('head');
+		var headItems = doc.getElementsByTagName('head');
 		if (headItems.length) 
 		{
-			var ffxmeta = document.createElement("meta");
+			var ffxmeta = doc.createElement("meta");
 			ffxmeta.setAttribute("name","sipgateffx_click2dial");
 			ffxmeta.setAttribute("value","enabled");
 			headItems[0].appendChild(ffxmeta);
@@ -911,7 +924,7 @@ function moveClick2dialInfoBubble() {
 		x: elements[0].offsetWidth + 20,
 		y: elements[0].offsetHeight + 20
 	};
-	var start = +new Date();
+	var start = window.performance.now();
 	var STEPS = 500;
 	var step = function(timestamp) {
 		var progress = timestamp - start;
@@ -936,18 +949,9 @@ function moveClick2dialInfoBubble() {
 
 function removeClick2dialInfoBubble() {
 	var elements = document.getElementsByClassName('sipgateffx_dialBubble');
+	var dialBubble = elements[0];
 	
-	var start = +new Date();
-	var step = function(timestamp) {
-		var progress = timestamp - start;
-		elements[0].style.opacity = 1 - (Math.min(progress/2, 100) / 100);
-		if (progress < 200) {
-			window.requestAnimationFrame(step);
-		} else {
-			elements[0].parentNode.removeChild(elements[0]);
-		}
-	}
-	window.requestAnimationFrame(step);	
+	sipgateffx_hightlightnumber.hideBubble(dialBubble, function() { dialBubble.parentNode.removeChild(dialBubble); });
 }
 
 function createStatusBubble(text, cssclass)

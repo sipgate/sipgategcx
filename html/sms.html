@@ -2,27 +2,29 @@
 	enctype="application/x-www-form-urlencoded" action="" method="post">
 <dl>
 	<dt id="sipgateffx_rect_number_sms_text-label">
-		<label for="rect_number_sms_text">Empfänger:</label></dt>
+		<label translation="recipient" for="rect_number_sms_text">Empfänger:</label></dt>
 	<dd id="sipgateffx_rect_number_sms_text-element"></dd>
 	<dt id="sipgateffx_remainingchars-label">&nbsp;</dt>
 	<dd id="sipgateffx_remainingchars-element"><span
 		id="sipgateffx_remainingchars_counter">160</span></dd>
-	<dt id="sipgateffx_message-label"><label for="message">Nachricht</label></dt>
+	<dt id="sipgateffx_message-label"><label translation="message" for="message">Nachricht</label></dt>
 	<dd id="sipgateffx_message-element"><textarea name="message" id="sipgateffx_message" autofocus maxlength="160"></textarea>
-	<div class="sipgateffx_hint sipgateffx_pricedisclaimer">7,9ct für diese SMS</div>
-	<div class="sipgateffx_errorbox" style="display: none">Bitte überprüfen Sie die markierten Felder.</div>
+	<div translation="price" class="sipgateffx_hint sipgateffx_pricedisclaimer">7,9ct für diese SMS</div>
+	<div translation="errorbox" class="sipgateffx_errorbox" style="display: none">Bitte überprüfen Sie die markierten Felder.</div>
 	</dd>
-	<dt id="sipgateffx_sender-label"><label>Absender:</label></dt>
+	<dt translation="sender" id="sipgateffx_sender-label"><label>Absender:</label></dt>
 	<dd id="sipgateffx_sender-element">
 		<select id="sipgateffx_sender">
 			<option>sipgate</option>
 		</select>
 	</dd>
 	<dt id="sipgateffx_sms_submit_button-label">&nbsp;</dt>
-	<dd id="sipgateffx_sms_submit_button-element"><button name="sms_submit_button" id="sipgateffx_sms_submit_button" type="button" class="sipgateffx_voice_button voice_button_disabled">SMS senden</button></dd>
+	<dd id="sipgateffx_sms_submit_button-element">
+		<button translation="send" name="sms_submit_button" id="sipgateffx_sms_submit_button" type="button" class="sipgateffx_voice_button voice_button_disabled">SMS senden</button>
+	</dd>
 </dl>
 </form>
 <div id="sipgateffx_sendingInProgress" style="display:none">
-	<p id="sipgateffx_sendingInProgress_text">Die SMS wird versendet...</p>
+	<p translation="sendingInProgress" id="sipgateffx_sendingInProgress_text">Die SMS wird versendet...</p>
 	<progress id="sipgateffx_sendingInProgress_progressbar" />
 </div>

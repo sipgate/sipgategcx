@@ -1,9 +1,10 @@
 {
 	"name": "__MSG_extTitle__",
-	"version": "0.6.99.8",
+	"version": "0.6.99.10",
 	"description": "__MSG_extDescription__",
 	"author": "rotmanov@sipgate.de",
 	"default_locale": "de",
+	"manifest_version": 2,
 	"icons": {
 		"16": "skin/sipgate_16x16.png",
 		"48": "skin/sipgateffx_logo.png",
@@ -26,11 +27,18 @@
 		"https://secure.live.sipgate.at/"
 	],
 	"options_page": "options.html",
-	"background_page": "background.html",
+	"background": {
+		"scripts": [
+			"mootools.js",
+			"mimic.js",
+			"backgroundHelper.js",
+			"background.js"
+		]
+	 },
 	"browser_action": {
 		"default_icon": "skin/icon_sipgate_inactive.gif",
 		"default_title": "__MSG_extTitle__",
-		"popup": "toolstrip.html"
+		"default_popup": "toolstrip.html"
 	},
 	"content_scripts": [
 		{
@@ -38,5 +46,20 @@
 			"css": ["sipgateffx_numberHighlight.css"],
 			"js": ["sipgateffx_numberHighlight.js"]
 		}
+	],
+	"web_accessible_resources": [
+		"skin/c2d_hungup.png",
+		"skin/c2d_established.png",
+		"skin/c2d_wait.png",
+		"skin/c2d_failed.png",
+		"skin/c2d_lineXbusy.png",
+		"skin/c2d_lineXfail.png",
+		"skin/c2d_lineXbusy.png",
+		"skin/c2d_lineXfail.png",
+		"skin/c2d_pickup.png",
+		"skin/icon_click2dial.gif",
+		"html/call.html",
+		"html/sms.html"
+		
 	]
 }

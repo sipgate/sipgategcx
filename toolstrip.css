@@ -1,8 +1,47 @@
 body {
-	background: #f7f7f7;
-	font-family: Arial, Tahoma, Verdana, Helvetica, sans-serif;
-	font-size: 10pt;
+	background: #fff;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
 	width: 250px;
+}
+
+h1 {
+	font-family: Georgia,Arial,Verdana,sans-serif;
+	font-size: 18px;
+	font-weight: normal;
+	color: #999;
+	border-bottom: 1px solid #999;
+	padding-bottom: 5px;
+}
+
+table#balance_block {
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+#refresh_balance {
+	text-decoration: underline;
+	color: #999;
+	cursor: pointer;
+}
+
+#logout {
+	text-decoration: underline;
+	color: #888;
+	background-color: #f3f3f3;
+	padding: 5px;
+	border-radius: 3px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.loginbox {
+	background-color: #eee;
+	border-radius: 5px;
+	padding: 15px;
+	font-size: 12px;
 }
 
 .view_template {
@@ -17,18 +56,15 @@ ul.toolstripMenu {
 }
 
 ul.toolstripMenu li {
-	border-top: 1px solid #eee;
 	padding: 5px 3px;
 	margin: 0;
 }
 
 ul.toolStripMenu li.linkAlike {
-	color: blue;
+	color: black;
+	text-decoration: underline;
+	font-weight: bold;
 	cursor: pointer;
-}
-
-ul.toolstripMenu li:hover {
-	background: #eee;
 }
 
 form#form_sendSMS fieldset {
@@ -53,27 +89,35 @@ div#notLoggedIn label {
 	font-weight: bold;
 }
 
+div#notLoggedIn div#sipgatelogo a,
+div#notLoggedIn div#sipgatelogo a:focus {
+	border: 0;
+}
+
 div#notLoggedIn div#sipgatelogo {
 	text-align: center;
-	margin-bottom: 10px;
+	margin: 20px 0;
 }
 
 div#notLoggedIn input.formelement {
-	width: 230px;
+	width: 220px;
 	border: 1px solid #CCC;
 	color: black;
 	margin-bottom: 15px;
-	-webkit-box-shadow: inset 2px 2px 5px -2px black;
-	padding: 2px 5px; 
+	-webkit-box-shadow: inset 2px 2px 7px -4px black;
+	padding: 5px; 
 }
 
 div#notLoggedIn input#login {
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffb76b), color-stop(50%,#ffa73d), color-stop(51%,#ff7c00), color-stop(100%,#ff7f04)); /* webkit */
-	width: 230px;
+	background: linear-gradient(to bottom, #ffad2c 0%,#ffad2c 7%,#fe9b01 10%,#e96f02 100%);
+	background: -webkit-linear-gradient(top, #ffad2c 0%,#ffad2c 7%,#fe9b01 10%,#e96f02 100%); /* Chrome10+,Safari5.1+ */
+	width: 220px;
 	color: #FFF;
 	font-weight: bold;
-	-webkit-border-radius: 3px;
+	border-radius: 5px;
 	height: 35px;
-	font-size: 16px;
-	border: 1px solid #aaa;
+	font-size: 18px;
+	border: 1px solid #E36302;
+	text-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+	margin-top: 10px;
 }

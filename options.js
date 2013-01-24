@@ -35,7 +35,7 @@ var page = {
 				$('savesetting').removeClass('hidden').addClass('active');
 			}
 			
-		}.bindWithEvent());
+		}.bind());
 		
 		$$('.setting').each(function(el) {
 			if(["text","password", "select"].indexOf(el.type) != -1) {
@@ -73,22 +73,19 @@ var page = {
 		}
 		
 		$('savesetting').addEvent('click', function(evnt) {
-			var newSettings = new Hash({});
+			var newSettings = {};
 			$$('.setting').each(function(el) {
 				if(["text","password", "select-one"].indexOf(el.type) != -1) {
 					var storageValue = localStorage.getItem(el.name);
 					localStorage.setItem(el.name, el.value);
 					if(storageValue != el.value) {
-						newSettings.set(el.name, el.value);
+						newSettings[el.name] = el.value;
 					}
 				} else if(["radio", "checkbox"].indexOf(el.type) != -1) {
 					localStorage.setItem(el.name, el.getProperty("checked"));
 				}
 			});
-			if(newSettings.getLength() != 0)
-			{
-				page.onStorage(newSettings);
-			}
+			page.onStorage(newSettings);
 			alert(chrome.i18n.getMessage("options_saved"));
 		});
 		
@@ -108,10 +105,10 @@ var page = {
 		
 	onStorage: function(settings)
 	{
-		if(settings.has("username") || settings.has("password"))
+		if(typeof(settings.username) != "undefined" || typeof(settings.password) != "undefined")
 		{
-			var username = settings.get("username") || localStorage.getItem("username");
-			var password = settings.get("password") || localStorage.getItem("password");
+			var username = settings.username || localStorage.getItem("username");
+			var password = settings.password || localStorage.getItem("password");
 			this.bgr.backgroundProcess.setCredentials(username, password);
 		}		
 	},
@@ -153,7 +150,6 @@ var page = {
 	}
 };
 
-
-window.addEvent('domready', function() {
+document.addEventListener('DOMContentLoaded', function () {
 	page.init();
 });

@@ -25,7 +25,7 @@ var logBuffer = {
 	{
 		if(typeof(item) == "object")
 		{
-			item = JSON.encode(item);
+			item = JSON.stringify(item);
 		}
 		
 		if(typeof(item) != "string")
@@ -94,7 +94,7 @@ var backgroundProcess = {
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4) {
-                callback(JSON.decode(xhr.responseText));
+                callback(JSON.parse(xhr.responseText));
             }
         };
         xhr.open("GET", chrome.extension.getURL('/manifest.json'));
@@ -220,7 +220,7 @@ var backgroundProcess = {
 		var to = niceNumber(number);
 		this.currentSessionData = {'to': to, 'from': from['alias']};
 
-		logBuffer.append("Starting with click2dial with currentSessionData: " + JSON.encode(this.currentSessionData));
+		logBuffer.append("Starting with click2dial with currentSessionData: " + JSON.stringify(this.currentSessionData));
 		
 		var params = { 
 				'LocalUri': from['extensionSipUri'],
@@ -229,10 +229,10 @@ var backgroundProcess = {
 				'Content': ''		
 			};
 		
-		logBuffer.append("Starting with click2dial with params: " + JSON.encode(params));
+		logBuffer.append("Starting with click2dial with params: " + JSON.stringify(params));
 		
     	var onSuccess = function(res) {
-    		logBuffer.append("SessionInitiate result: " + JSON.encode(res));
+    		logBuffer.append("SessionInitiate result: " + JSON.stringify(res));
 			if (res.StatusCode && res.StatusCode == 200) {
 				this.currentSessionID = res.SessionID;
 
@@ -500,6 +500,9 @@ var backgroundProcess = {
 			if (res.StatusCode && res.StatusCode == 200) {
 				var balance = res.CurrentBalance;
 				var currency = balance.Currency;
+				if(currency == "EUR") {
+					currency = "€";
+				}
 				var balanceValueDouble = balance.TotalIncludingVat;
 				
 				var balanceValueString = balanceValueDouble;
@@ -785,12 +788,13 @@ var restApi = {
 			msg.addParam(params);
 		}
 		
-//		var server = "https://api.sipgate.net/RPC2";
 		var server = backgroundProcess.samuraiServer[backgroundProcess.systemArea];
+//		var server = "https://api.sipgate.net/RPC2";
 
 		var xml = msg.parseXML();
 		new Request({ 
 					url: server, 
+					urlEncoded: false,
 					headers: {
 						'Accept': 'text/javascript, text/html, application/xml, text/xml, */*',
 						'Content-Type': 'text/xml; charset=UTF-8',
@@ -874,3 +878,5 @@ var restApi = {
 	}
 	
 	chrome.extension.onRequest.addListener(backgroundProcess.receiveRequest);
+
+	doOnLoad();

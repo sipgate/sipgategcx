@@ -6,35 +6,54 @@
 	
 	<link rel="stylesheet" type="text/css" href="toolstrip.css">
 	</head>
-	<body onload="doOnLoad()">
+	<body>
 	
 		<div id="notLoggedIn">
 			<div id="sipgatelogo">
-				<img src="skin/sipgate_logo.gif" title="not logged in" id="sipgatelogo" />
+				<a href="http://www.sipgate.de" target="_blank" tabindex="4">
+					<img src="skin/sipgategcx-logo.png" title="sipgate logo" id="sipgatelogo" />
+				</a>
 			</div>
-			<form action="" method="post" id="standardlogin">
-				<label for="username">E-Mail:</label>
-				<input class="formelement" type="text" name="username" id="username"><br>
-				<label for="password">Passwort:</label>
-				<input class="formelement" type="password" name="password" id="password">
-				<input type="button" id="login" value="Jetzt einloggen!">
-			</form>
+			<div class="loginbox">
+				<form action="" method="post" id="standardlogin">
+					<label translation="username" for="username">E-Mail:</label>
+					<input class="formelement" type="text" name="username" id="username" tabindex="1"><br>
+					<label translation="password" for="password">Passwort:</label>
+					<input class="formelement" type="password" name="password" id="password" tabindex="2">
+					<input type="button" id="login" value="Jetzt einloggen!" tabindex="3">
+				</form>
+			</div>
 		</div>
 
 		<div id="menu" class="view_template">
+			<table id="balance_block">
+				<tr>
+					<td>
+						<div id="balance_container"><span translation="balance">Actual balance:</span> <span translation="wait" id="balance">... wait ...</span></div>
+					</td><td>
+						<div translation="refreshbalance" id="refresh_balance">Refresh balance</div>
+					</td><td>
+						<div translation="logout" id="logout">Log out</div>
+					</td>
+				</tr>
+			</table>
+			
 			<ul class="toolstripMenu">
-				<li><span translation="balance">Actual balance:</span> <span translation="wait" id="balance">... wait ...</span></li>
-				<li translation="dialnumber" class="view_template">Dial a phone numer...</li>
+				<li translation="dialnumber" class="linkAlike">Dial a phone numer...</li>
 				<li translation="sendSMS" class="linkAlike" id="sendSMS">Send a text message...</li>
-				<li translation="sendfax" class="linkAlike showSitePage" id="fax">Send fax</li>
-				<li translation="showinbox" class="linkAlike showSitePage" id="history">Show inbox</li>
-				<li translation="creditaccount" class="linkAlike showSitePage" id="credit">Credit account</li>
-				<li translation="checkvoicemail" class="linkAlike showSitePage" id="voicemail">Check voicemail</li>
-				<li translation="showcontacts" class="linkAlike showSitePage" id="phonebook">Show contacts</li>
-				<li translation="itemizedbills" class="linkAlike showSitePage" id="itemized">Itemized call list</li>
-				<li translation="refreshbalance" class="linkAlike" id="refresh_balance">Refresh balance</li>
 				<li translation="preferences" class="linkAlike" id="preferences">Preferences</li>
-				<li translation="logout" class="linkAlike" id="logout">Log out</li>
+			</ul>
+			
+			<h1 translation="links">Links</h1>
+			
+			<ul class="toolstripMenu">
+				<li translation="showinbox" class="linkAlike showSitePage" id="history">Show inbox</li>
+				<li translation="checkvoicemail" class="linkAlike showSitePage" id="voicemail">Check voicemail</li>
+				<li translation="sendfax" class="linkAlike showSitePage" id="fax">Send fax</li>
+				<li translation="showcontacts" class="linkAlike showSitePage" id="phonebook">Show contacts</li>
+				
+				<li translation="creditaccount" class="linkAlike showSitePage" id="credit">Credit account</li>
+				<li translation="itemizedbills" class="linkAlike showSitePage" id="itemized">Itemized call list</li>
 			</ul>
 		</div>
 		

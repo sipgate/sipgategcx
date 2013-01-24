@@ -37,7 +37,10 @@
 	"previewnumber_dialog":  {"message": "This number will be called:"},	
 	"options_saved":  {"message": "Your settings were saved."},
 	
-	"toolstrip_balance":  {"message": "Actual Balance:"},	
+	"toolstrip_links":  {"message": "Links:"},	
+	"toolstrip_username":  {"message": "E-Mail / Web Username:"},	
+	"toolstrip_password":  {"message": "Password:"},	
+	"toolstrip_balance":  {"message": "Balance:"},	
 	"toolstrip_wait":  {"message": "... wait ..."},	
 	"toolstrip_dialnumber":  {"message": "Dial a number..."},	
 	"toolstrip_sendSMS":  {"message": "Text a message..."},	
@@ -47,7 +50,7 @@
 	"toolstrip_checkvoicemail":  {"message": "Check voicemails"},	
 	"toolstrip_showcontacts":  {"message": "Show contacts"},
 	"toolstrip_itemizedbills":  {"message": "Itemized call list"},
-	"toolstrip_refreshbalance":  {"message": "Refresh balance"},	
+	"toolstrip_refreshbalance":  {"message": "Refresh"},	
 	"toolstrip_preferences":  {"message": "Preferences"},	
 	"toolstrip_logout":  {"message": "Logout"},
 		
@@ -71,6 +74,18 @@
 	"options_change": {"message": "Change"},
 	"options_sample": {"message": "(555) 1234-567"},
 		
+	"call_callthis": {"message": "Number to call:"},
+	"call_originphone": {"message": "from this phone:"},
+	"call_wrongnumbererror": {"message": "Please enter a valid phone number."},
+	"call_startcall": {"message": "Start call"},
+	
+	"sms_recipient": {"message": "Recipient:"},
+	"sms_message": {"message": "Message"},
+	"sms_price": {"message": "this message will be billed according to our tariffs"},
+	"sms_errorbox": {"message": "Please check your input."},
+	"sms_sender": {"message": "Sender:"},
+	"sms_send": {"message": "Send SMS"},
+	"sms_sendingInProgress": {"message": "Sending message... Please stand by..."},
 	
 	"foo":  {"message": "bar"}
 }

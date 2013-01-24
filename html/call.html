@@ -1,15 +1,21 @@
 <dl id="sipgateffx_call">
-	<dt><label for="sipgateffx_call_number">Nummer anrufen:</label></dt>
-	<dd><input type="text" name="callB" id="sipgateffx_call_number" autofocus></dd>
-	<dt id="sipgateffx_call_phone-label"><label for="sipgateffx_call_phone">von Telefon:</label></dt>
+	<dt>
+		<label translation="callthis" for="sipgateffx_call_number">Nummer anrufen:</label>
+	</dt>
+	<dd>
+		<input type="text" name="callB" id="sipgateffx_call_number" autofocus>
+	</dd>
+	<dt id="sipgateffx_call_phone-label">
+		<label translation="originphone" for="sipgateffx_call_phone">von Telefon:</label>
+	</dt>
 	<dd id="sipgateffx_call_phone-element">
 		<select id="sipgateffx_call_phone">
 		</select>
-		<div class="wrongnumbererror errorbox" style="display: none;">Bitte geben Sie eine gültige Rufnummer ein.</div>
+		<div translation="wrongnumbererror" class="wrongnumbererror errorbox" style="display: none;">Bitte geben Sie eine gültige Rufnummer ein.</div>
 	</dd>
-	<dt style="line-height:1px">&nbsp;</dt>
+	<dt style="line-height: 1px">&nbsp;</dt>
 	<dd>
-		<button type="submit" id="sipgateffx_call_submit_button">Anrufen</button>
+		<button translation="startcall" type="submit" id="sipgateffx_call_submit_button">Anrufen</button>
 	</dd>
 </dl>
 

@@ -171,7 +171,7 @@ var page = {
 			$('preferences').addEvent('click', this.preferencesAction.bind(this));
 		}
 		
-		$$('li.showSitePage').addEvent('click', this.onStatusbarCommand.bindWithEvent(this));
+		$$('li.showSitePage').addEvent('click', this.onStatusbarCommand.bind(this));
 	},
 	
 	preferencesAction: function() {
@@ -324,3 +324,7 @@ function formatNumber(number, callback) {
 		} 
 	}).get();		
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+	doOnLoad();
+});
