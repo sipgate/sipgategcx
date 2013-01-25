@@ -53,6 +53,7 @@
 	"toolstrip_refreshbalance":  {"message": "Refresh"},	
 	"toolstrip_preferences":  {"message": "Preferences"},	
 	"toolstrip_logout":  {"message": "Logout"},
+	"toolstrip_smsheader": {"message": "Text a message"},
 		
 	"options_account": {"message": "Account"},
 	"options_click2dial": {"message": "click2dial"},

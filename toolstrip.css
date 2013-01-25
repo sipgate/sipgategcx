@@ -27,12 +27,16 @@ table#balance_block {
 	cursor: pointer;
 }
 
+#smsArea,
+#logout {
+	background-color: #f3f3f3;
+	border-radius: 3px;
+}
+
 #logout {
 	text-decoration: underline;
 	color: #888;
-	background-color: #f3f3f3;
 	padding: 5px;
-	border-radius: 3px;
 	text-align: center;
 	cursor: pointer;
 }

@@ -53,6 +53,7 @@
 	"toolstrip_refreshbalance":  {"message": "Aktualisieren"},	
 	"toolstrip_preferences":  {"message": "Einstellungen"},	
 	"toolstrip_logout":  {"message": "Abmelden"},
+	"toolstrip_smsheader": {"message": "SMS senden"},
 	
 	"options_account": {"message": "Account"},
 	"options_click2dial": {"message": "click2dial"},

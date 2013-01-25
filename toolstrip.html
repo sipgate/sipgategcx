@@ -40,7 +40,7 @@
 			</table>
 			
 			<ul class="toolstripMenu">
-				<li translation="dialnumber" class="linkAlike">Dial a phone numer...</li>
+				<li translation="dialnumber view_template" class="linkAlike">Dial a phone numer...</li>
 				<li translation="sendSMS" class="linkAlike" id="sendSMS">Send a text message...</li>
 				<li translation="preferences" class="linkAlike" id="preferences">Preferences</li>
 			</ul>
@@ -59,29 +59,10 @@
 		</div>
 		
 		<div id="page_sendSMS" class="view_template">
-			<div id="sendSMS_sending" class="view_template">SMS wird verschickt...</div>
-			<div id="sendSMS_success" class="view_template">SMS wurde erfolgreich verschickt.</div>
-			<div id="sendSMS_failed" class="view_template">SMS konnte nicht verschickt werden.</div>
-			<form id="form_sendSMS">
-				<fieldset>
-					<legend>Number</legend>
-					<input id="sendSMS_number" type="text">
-				</fieldset>
-				<fieldset>
-					<legend>Text</legend>
-					<textarea id="sendSMS_text" rows="" cols=""></textarea>
-				</fieldset>
-				<fieldset>
-					<legend>Sender number</legend>
-					<select><option>sipgate</option></select>
-				</fieldset>
-				<fieldset>
-					<legend>Scheduled</legend>
-					<input type="checkbox"> Send later
-				</fieldset>
-				<button type="submit">Send SMS</button>
-				<a href="javascript:;" id="form_sendSMS_cancel">Cancel</a>
-			</form>
+			<h1 translation="smsheader">SMS senden</h1>
+			
+			<div id="smsArea"></div>
+		
 		</div>
 		
 		

@@ -31,7 +31,7 @@ var SMSEditor = {
 			if(res.httpServer) this.httpServer = res.httpServer;
 			
 			if(this.initialized) return;
-			this.getSMSWindow($('page_sendSMS'), null, null);
+			this.getSMSWindow($('smsArea'), null, null);
 			this.initialized = true;
 		}.bind(this));
 	},
