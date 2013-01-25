@@ -188,11 +188,11 @@ var SMSEditor = {
 		var number = this.getNumber();
 		if(number != "" && number.length > 4)
 		{
-			formatNumber(number, function(formatted) {
+			chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
 				if(formatted && formatted[number] && formatted[number]['local']) {
 					$('sipgateffx_recipient').set('value', formatted[number]['local']);
 				}
-			});
+			}.bind(this));
 		}		
 	},
 	
@@ -415,34 +415,6 @@ function receiveMessage(e) {
 			bgr.logBuffer.append('Event handling not found for event: ' + e);
 			break;
 	}
-}
-
-function formatNumber(number, callback) {
-	// https://secure.live.sipgate.de/format/do/info/
-	if(!number.match(/\d/)) {
-		if(typeof(callback) == 'function') {
-			callback({'error':true});
-		}
-		return;
-	}
-	number = encodeURIComponent(number.trim());
-	var url = bgr.sipgateCredentials.HttpServer.replace(/^www/, 'secure');
-	url = 'https://' + url + '/format/do/info/domain/sipgate.de/number/'+number;
-	new Request.JSON({
-		'url': url,
-		onSuccess: function(data) {
-			if(typeof(callback) == 'function') {
-				callback(data);
-			} else {
-//				bgr.logBuffer.append(data);
-			}
-		}.bind(this),
-		onFailure: function(data) {
-			if(typeof(callback) == 'function') {
-				callback({'error':true});
-			} else return data;
-		} 
-	}).get();		
 }
 
 document.addEventListener('DOMContentLoaded', function () {

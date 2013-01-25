@@ -60,6 +60,7 @@
 
 #sipgateffx_sendsms .sipgateffx_pricedisclaimer {
 	margin-bottom: 20px;
+	max-width: 250px;
 }
 
 #sipgateffx_sendsms #sipgateffx_remainingchars_counter {
@@ -75,6 +76,7 @@
 
 #sipgateffx_call #sipgateffx_call_submit_button,
 #sipgateffx_sendsms #sipgateffx_sms_submit_button {
+	font-weight: normal;
 	font-size: 12px;
 	font-family: Arial,Verdana,sans-serif;	
 	color: #000000;

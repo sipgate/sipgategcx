@@ -162,6 +162,10 @@ var backgroundProcess = {
 					response = null;
 					backgroundProcess.getExtensions(sendResponse);
 					break;
+				case 'formatNumber':
+					response = null;
+					backgroundProcess.formatNumber(request.number, sendResponse);
+					break;
 					
 			}
 		}
@@ -170,6 +174,33 @@ var backgroundProcess = {
 	
 	logout: function() {
 		this.initVars();
+	},
+	
+	formatNumber: function(number, callback) {
+		if(!number.match(/\d/)) {
+			if(typeof(callback) == 'function') {
+				callback({'error':true});
+			}
+			return;
+		}
+		number = encodeURIComponent(number.trim());
+		var url = sipgateCredentials.HttpServer.replace(/^www/, 'secure');
+		url = 'https://' + url + '/format/do/info/domain/sipgate.de/number/'+number;
+		new Request.JSON({
+			'url': url,
+			onSuccess: function(data) {
+				if(typeof(callback) == 'function') {
+					callback(data);
+				} else {
+//					bgr.logBuffer.append(data);
+				}
+			}.bind(this),
+			onFailure: function(data) {
+				if(typeof(callback) == 'function') {
+					callback({'error':true});
+				} else return data;
+			} 
+		}).get();		
 	},
 	
 	startClick2Dial: function(number, extension, tabId) {

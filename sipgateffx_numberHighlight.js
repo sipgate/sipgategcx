@@ -352,6 +352,12 @@ var sipgateffx_hightlightnumber = {
 			  }
 			  if(typeof(number) != "undefined") {
 				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
+				  
+				  chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
+					  if(formatted && formatted[number] && formatted[number]['local']) {
+						  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = formatted[number]['local'];
+					  }
+				  }.bind(this));
 			  }
 
 			  if(typeof(text) != "undefined") {
@@ -608,6 +614,12 @@ var sipgateffx_hightlightnumber = {
 			  chrome.extension.sendRequest({action: 'getExtensions'}, this.setExtensions.bind(this));
 			  if(typeof(number) != "undefined") {
 				  document.getElementById("sipgateffx_call_number").value = number;
+				  
+				  chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
+					  if(formatted && formatted[number] && formatted[number]['local']) {
+						  document.getElementById("sipgateffx_call_number").value = formatted[number]['local'];
+					  }
+				  }.bind(this));				  
 			  }
 			  document.getElementById("sipgateffx_call_submit_button").addEventListener("click", this.bindStartClick2Dial.bind(this));
 			  this.changeTranslation(content, 'call');
