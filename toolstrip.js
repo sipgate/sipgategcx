@@ -380,9 +380,6 @@ function doOnLoad()
 	
 	$('refresh_balance').addEvent('click', function() {
 		$('balance').set('text', '...wait...');
-		
-		console.log(bgr.backgroundProcess);
-		
 		bgr.backgroundProcess.getBalance();
 	});
 	

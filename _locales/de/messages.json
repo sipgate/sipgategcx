@@ -9,6 +9,11 @@
 	"smsSendingSuccess":  {"message": "Die SMS wurde erfolgreich verschickt."},
 	"smsSendingFailure":  {"message": "Aufgrund eines Systemfehlers konnte die SMS nicht verschickt werden."},
 	"smsSendingInProgress": {"message": "Die SMS wird versendet..."},
+	"newVoicemailTitlePlural": {"message": "You have $1 new voicemails"},
+	"newVoicemailTextPlural": {"message": "Click here to get them."},
+	"newVoicemailTitle": {"message": "Message from $1"},
+	"newVoicemailText": {"message": "Click here to get it."},
+
 	"contextMenu": {"message": "sipgateGCX"},
 	"contextMenu_sendTextAsSMS": {"message": "Diesen Text als SMS senden..."},
 	"contextMenu_sendSMSToText": {"message": "SMS an diese Nummer senden..."},

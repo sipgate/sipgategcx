@@ -9,6 +9,11 @@
 	"smsSendingSuccess":  {"message": "Your text message was sent successfully."},
 	"smsSendingFailure":  {"message": "We could not deliver your text message due to a system failure."},
 	"smsSendingInProgress": {"message": "Sending..."},
+	"newVoicemailTitlePlural": {"message": "Sie haben $1 neue Voicemails"},
+	"newVoicemailTextPlural": {"message": "Hier klicken, um sie abzuhören."},
+	"newVoicemailTitle": {"message": "Neue Nachricht von $1"},
+	"newVoicemailText": {"message": "Klicken Sie hier, um sie abzuhören."},
+	
 	"contextMenu": {"message": "sipgateGCX"},
 	"contextMenu_sendTextAsSMS": {"message": "Send this as text message..."},
 	"contextMenu_sendSMSToText": {"message": "Send text message to selected number..."},
@@ -74,7 +79,7 @@
 	"options_closeSettings": {"message": "Close settings page"},
 	"options_change": {"message": "Change"},
 	"options_sample": {"message": "(555) 1234-567"},
-		
+	
 	"call_callthis": {"message": "Number to call:"},
 	"call_originphone": {"message": "from this phone:"},
 	"call_wrongnumbererror": {"message": "Please enter a valid phone number."},

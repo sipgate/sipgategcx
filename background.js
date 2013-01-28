@@ -606,7 +606,6 @@ var backgroundProcess = {
 };
 
 var restApi = {
-	url: 'http://api.dev.sipgate.net',
 	
 	voicemail: {
 		url: 'my/events/voicemails',
@@ -616,55 +615,72 @@ var restApi = {
 	},
 	
 	getNewVoicemails: function() {
-		var callback = this.response.parseVoicemailResult;
+		var callback = this.parseVoicemailResult;
 		if(this.voicemail.lastId == null) {
 		//	callback = this.response.setInitialVoicemailId;
 		}
-		this._get(this.voicemail.url, this.voicemail.version, callback.bind(this));
+		this._get(this.voicemail.url, this.voicemail.version, callback.bind(this), this.failedVoicemailResult);
 	},
-	
-	response: {
-		setInitialVoicemailId: function(res) {
-			if(!res || !res['events'] || !res['events']['voicemails']) return;
-			if(res['events']['voicemails'].length > 0) {
-				this.voicemail.lastId = res['events']['voicemails'][0].id;
-			} else {
-				this.voicemail.lastId = 1;
-			}
-			this.getNewVoicemails.delay(this.voicemail.interval);
-		},
-		
-		parseVoicemailResult: function(res) {
-			if(!res || !res['events'] || !res['events']['voicemails']) return;
-			if(res['events']['voicemails'].length > 0 && res['events']['voicemails'][0].id > this.voicemail.lastId) {
-				var counter = 0;
-				for (var i = 0, l = res['events']['voicemails'].length; i < l; i++) {
-					logBuffer.append(res['events']['voicemails'][i]);
-					if(res['events']['voicemails'][i].id > this.voicemail.lastId) {
-						counter++;
-					} else {
-						break;
-					}
-				}
-				this.voicemail.lastId = res['events']['voicemails'][0].id;
-				var title = "You have " + counter + " new voicemails";
-				var text = "To read it, go to sipgate.com!";
-				if(counter == 1 && res['events']['voicemails'][0].transcription) {
-					text = res['events']['voicemails'][0].transcription;
-				}
-				webkitNotifications.createNotification(
-						  'skin/sipgateffx_logo.png',
-						  title,
-						  text
-				).show();
-			}
-			this.getNewVoicemails.delay(this.voicemail.interval);
+
+	failedVoicemailResult: function() {
+		this.getNewVoicemails.delay(10);
+	},
+	setInitialVoicemailId: function(res) {
+		if(!res || !res['events'] || !res['events']['voicemails']) return;
+		if(res['events']['voicemails'].length > 0) {
+			this.voicemail.lastId = res['events']['voicemails'][0].id;
+		} else {
+			this.voicemail.lastId = 1;
 		}
+		this.getNewVoicemails.delay(this.voicemail.interval);
 	},
-	
+	parseVoicemailResult: function(res) {
+		if(!res || !res['events'] || !res['events']['voicemails']) return;
+		if(res['events']['voicemails'].length > 0 && res['events']['voicemails'][0].id > this.voicemail.lastId) {
+			var messages = [];
+			for (var i = 0, l = res['events']['voicemails'].length; i < l; i++) {
+				logBuffer.append(res['events']['voicemails'][i]);
+				if(res['events']['voicemails'][i].id > this.voicemail.lastId && res['events']['voicemails'][i].read.value !== true) {
+					messages.push(res['events']['voicemails'][i]);
+				} else {
+					break;
+				}
+			}
+			this.voicemail.lastId = res['events']['voicemails'][0].id;
+			
+			var title = chrome.i18n.getMessage("newVoicemailTitlePlural", [messages.length]);
+			var text = chrome.i18n.getMessage("newVoicemailTextPlural");
+			
+			if(messages.length == 1)
+			{
+				var number = (messages[0].sources.numberPretty != '' ? messages[0].sources.numberPretty : messages[0].sources.numberE164replace(/^.*:/,''));
+				var contactName = typeof(messages[0].sources.contactFN) != "undefined" ? messages[0].sources.contactFN : null;
+				var contact = number;
+				if(contactName != null)
+				{
+					contact = contactName + ' (' + number + ')';
+				}
+				title = chrome.i18n.getMessage("newVoicemailTitle", [contact]);
+				text = chrome.i18n.getMessage("newVoicemailText");
+				
+				if(messages[0].transcription) {
+					text = messages[3].transcription;
+				}
+			}
+			
+			webkitNotifications.createNotification(
+					  'skin/sipgateffx_logo.png',
+					  title,
+					  text
+			).show();
+		}
+		this.getNewVoicemails.delay(this.voicemail.interval);
+	},
+
 	_get: function _restCall(url, version, successCallback, failureCallback)
 	{
-		var server = "http://api.dev.sipgate.net/"+ url +"/?version="+ version +"&complexity=full";
+		var server = backgroundProcess.samuraiServer[backgroundProcess.systemArea].replace(/RPC2$/,'');		
+		server += url +"/?version="+ version +"&complexity=full";
 		new Request.JSON({ 
 			method: 'get',
 			url: server, 
@@ -688,226 +704,226 @@ var restApi = {
 	}
 };
 
-	var userCountryPrefix = '49';
-	var internationalPrefixes = {
-		"1": ["^011","^\\+"],
-		"43": ["^00","^\\+"],
-		"44": ["^00","^\\+"],
-		"49": ["^00","^\\+"]
-	};
-	
-	var sipgateCredentials = {
-		"SipRegistrar": "sipgate.de",
-		"NtpServer": "ntp.sipgate.net",
-		"HttpServer": "www.live.sipgate.de",
-		"SipOutboundProxy": "proxy.sipgate.de",
-		"XmppServer": "",
-		"StunServer": "stun.sipgate.net",
-		"SamuraiServer": "api.sipgate.net",
-		"SimpleServer": ""
-	};
+var userCountryPrefix = '49';
+var internationalPrefixes = {
+	"1": ["^011","^\\+"],
+	"43": ["^00","^\\+"],
+	"44": ["^00","^\\+"],
+	"49": ["^00","^\\+"]
+};
 
-	var recommendedIntervals = {
-		"samurai.BalanceGet": 60,
-		"samurai.RecommendedIntervalGet": 60,
-		"samurai.EventSummaryGet": 60
-	};
-		
-	function doOnLoad()
+var sipgateCredentials = {
+	"SipRegistrar": "sipgate.de",
+	"NtpServer": "ntp.sipgate.net",
+	"HttpServer": "www.live.sipgate.de",
+	"SipOutboundProxy": "proxy.sipgate.de",
+	"XmppServer": "",
+	"StunServer": "stun.sipgate.net",
+	"SamuraiServer": "api.sipgate.net",
+	"SimpleServer": ""
+};
+
+var recommendedIntervals = {
+	"samurai.BalanceGet": 60,
+	"samurai.RecommendedIntervalGet": 60,
+	"samurai.EventSummaryGet": 60
+};
+	
+function doOnLoad()
+{
+	backgroundProcess.init();
+	username = localStorage.getItem('username');
+	password = localStorage.getItem('password');
+	if(username != null && password != null)
 	{
-		backgroundProcess.init();
-    	username = localStorage.getItem('username');
-		password = localStorage.getItem('password');
-		if(username != null && password != null)
-		{
-			login();
-		}
+		login();
 	}
-	
-	function login(force)
-	{
-		if(loggedin == true && !force) {
-			return;
-		}
-		chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
-		
-		var onSuccess = function(res) {
-			if (res.StatusCode && res.StatusCode == 200) {
-				loggedin = true;
-				backgroundProcess.getBalance();
-				backgroundProcess.getTosList();
-				backgroundProcess.getRecommendedIntervals();
-				backgroundProcess.getOwnUriList();
+}
 
-	    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
-	    		notifyViews('loggedin');
-  		
-				sipgateCredentials = res;
-			} else {
-				notifyViews('loggedinFailed');
-			}
-		};
-		
-		var onFail = function(xhr) {
-			chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});
-		};
-		
-		_rpcCall("samurai.ServerdataGet", {}, onSuccess, onFail);
+function login(force)
+{
+	if(loggedin == true && !force) {
+		return;
 	}
+	chrome.browserAction.setIcon({path:"skin/throbber_anim.gif"});
 	
-	function sendSMS(number, text, sender, tabId)
-	{
-		var remoteUri = '';
-		var apiFunction = '';
+	var onSuccess = function(res) {
+		if (res.StatusCode && res.StatusCode == 200) {
+			loggedin = true;
+			backgroundProcess.getBalance();
+			backgroundProcess.getTosList();
+			backgroundProcess.getRecommendedIntervals();
+			backgroundProcess.getOwnUriList();
 
-		var numbers = number.split(',');
-
-		if(numbers.length == 1) {
-			apiFunction = 'SessionInitiate';
-			remoteUri = 'sip:'+ niceNumber(numbers[0]) +'@sipgate.net';
+    		chrome.browserAction.setIcon({path:"skin/icon_sipgate_active.gif"});
+    		notifyViews('loggedin');
+	
+			sipgateCredentials = res;
 		} else {
-			apiFunction = 'SessionInitiateMulti';
-			remoteUri = [];
-
-			for (var i = 0; i < numbers.length; i++) {
-				remoteUri.push('sip:'+ sipgateffx_sms.component.niceNumber(numbers[i]) +'@sipgate.net');
-			}
+			notifyViews('loggedinFailed');
 		}
+	};
+	
+	var onFail = function(xhr) {
+		chrome.browserAction.setIcon({path:"skin/icon_sipgate_inactive.gif"});
+	};
+	
+	_rpcCall("samurai.ServerdataGet", {}, onSuccess, onFail);
+}
 
-		var params = { 'RemoteUri': remoteUri, 'TOS': "text", 'Content': text };
+function sendSMS(number, text, sender, tabId)
+{
+	var remoteUri = '';
+	var apiFunction = '';
 
-		// set sender
-		if(typeof(sender) != "undefined" && sender != "") {
-			localStorage.setItem('smsSender', sender);			
-			params.LocalUri = 'sip:'+sender+'@sipgate.net';
+	var numbers = number.split(',');
+
+	if(numbers.length == 1) {
+		apiFunction = 'SessionInitiate';
+		remoteUri = 'sip:'+ niceNumber(numbers[0]) +'@sipgate.net';
+	} else {
+		apiFunction = 'SessionInitiateMulti';
+		remoteUri = [];
+
+		for (var i = 0; i < numbers.length; i++) {
+			remoteUri.push('sip:'+ sipgateffx_sms.component.niceNumber(numbers[i]) +'@sipgate.net');
 		}
-		
-    	var onSuccess = function(res) {
-    		logBuffer.append(res);
-			if (res.StatusCode && res.StatusCode == 200) {
-				if(tabId) {
-					chrome.tabs.sendRequest(tabId, {action:'smsSentSuccess'});
-				} else {
-					notifyViews('smsSentSuccess');
-				}
+	}
+
+	var params = { 'RemoteUri': remoteUri, 'TOS': "text", 'Content': text };
+
+	// set sender
+	if(typeof(sender) != "undefined" && sender != "") {
+		localStorage.setItem('smsSender', sender);			
+		params.LocalUri = 'sip:'+sender+'@sipgate.net';
+	}
+	
+	var onSuccess = function(res) {
+		logBuffer.append(res);
+		if (res.StatusCode && res.StatusCode == 200) {
+			if(tabId) {
+				chrome.tabs.sendRequest(tabId, {action:'smsSentSuccess'});
 			} else {
-				if(tabId) {
-					chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
-				} else {
-					notifyViews('smsSentFailed');
-				}
+				notifyViews('smsSentSuccess');
 			}
-		};
-		
-		var onFailure = function(res) {
+		} else {
 			if(tabId) {
 				chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
 			} else {
 				notifyViews('smsSentFailed');
 			}
-		};
+		}
+	};
+	
+	var onFailure = function(res) {
+		if(tabId) {
+			chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
+		} else {
+			notifyViews('smsSentFailed');
+		}
+	};
 
-		_rpcCall("samurai."+apiFunction, params, onSuccess, onFailure);
-	}		
+	_rpcCall("samurai."+apiFunction, params, onSuccess, onFailure);
+}		
 
-	function _rpcCall(method, params, successCallback, failureCallback)
+function _rpcCall(method, params, successCallback, failureCallback)
+{
+	logBuffer.append(method);
+	var msg = new XmlRpcRequest('', method);
+	if(typeof params != 'undefined' && params != null)
 	{
-		logBuffer.append(method);
-		var msg = new XmlRpcRequest('', method);
-		if(typeof params != 'undefined' && params != null)
-		{
-			msg.addParam(params);
-		}
-		
-		var server = backgroundProcess.samuraiServer[backgroundProcess.systemArea];
-//		var server = "https://api.sipgate.net/RPC2";
+		msg.addParam(params);
+	}
+	
+	var server = backgroundProcess.samuraiServer[backgroundProcess.systemArea];
+	// var server = "https://api.sipgate.net/RPC2";
 
-		var xml = msg.parseXML();
-		new Request({ 
-					url: server, 
-					urlEncoded: false,
-					headers: {
-						'Accept': 'text/javascript, text/html, application/xml, text/xml, */*',
-						'Content-Type': 'text/xml; charset=UTF-8',
-						'Authorization': 'Basic ' + btoa(username + ':' + password)
-					},
-					data: xml,
-					onSuccess: function(resText, resXML) {
-						var ourParsedResponse = new XmlRpcResponse(resXML).parseXML();
-						if(typeof successCallback == 'function')
-						{
-							successCallback(ourParsedResponse);
-						}
-					},
-					onFailure: function(xhr) {
-						logBuffer.append("BAD" + xhr.status);
-						if(typeof failureCallback == 'function')
-						{
-							failureCallback(xhr);
-						}							
+	var xml = msg.parseXML();
+	new Request({ 
+				url: server, 
+				urlEncoded: false,
+				headers: {
+					'Accept': 'text/javascript, text/html, application/xml, text/xml, */*',
+					'Content-Type': 'text/xml; charset=UTF-8',
+					'Authorization': 'Basic ' + btoa(username + ':' + password)
+				},
+				data: xml,
+				onSuccess: function(resText, resXML) {
+					var ourParsedResponse = new XmlRpcResponse(resXML).parseXML();
+					if(typeof successCallback == 'function')
+					{
+						successCallback(ourParsedResponse);
 					}
-					}).send();
-	}
-	
-	function niceNumber (_number) {
-		try {
-			var natprefix = userCountryPrefix;
-			
-			logBuffer.append("_niceNumber(): number before: "+_number);
-			
-			// -----------------------------------------------------
-			
-			var removeCandidates = [
-				"\\s",						// whitespaces
-				"-",						// dashes
-				"\\[0\\]",					// smth like 49 [0] 211 to 49 211
-				"\\(0\\)",					// smth like 49 (0) 211 to 49 211
-				"\\.",						// all points
-				"\\/",						// all points
-				"\\[",						// bracket [
-				"\\]",						// bracket ]
-				"\\(",						// bracket (
-				"\\)",						// bracket )
-				String.fromCharCode(0xa0)	// &nbsp;
-			];
-			var removeRegEx = new RegExp(removeCandidates.join('|'), 'g');
-			
-			_number = _number.toString().replace(removeRegEx, "");
-			
-			if(!_number.match(/^0|^\+/)) {
-				_number = natprefix + _number;
-			} else {
-				_number = _number.toString().replace(new RegExp(internationalPrefixes[natprefix].join('|')), "");
-			}
+				},
+				onFailure: function(xhr) {
+					logBuffer.append("BAD" + xhr.status);
+					if(typeof failureCallback == 'function')
+					{
+						failureCallback(xhr);
+					}							
+				}
+				}).send();
+}
 
-			// -----------------------------------------------------			
-
-			var nationalPrefixCandidates = [
-				'^0([1-9]\\d+)'				// prefix like "0211 ..."
-			];
-
-			var nationalPrefixRegEx = new RegExp(nationalPrefixCandidates.join('|'));
-
-			_number = _number.toString().replace(nationalPrefixRegEx, natprefix + "$1");
-
-			// -----------------------------------------------------	
-
-			_number = _number.toString().replace(/[^\d]/g, "");
-			logBuffer.append("_niceNumber(): number after: "+_number);
-		} catch (ex) {
-		    	logBuffer.append("Error in _niceNumber(): "+ex);
+function niceNumber (_number) {
+	try {
+		var natprefix = userCountryPrefix;
+		
+		logBuffer.append("_niceNumber(): number before: "+_number);
+		
+		// -----------------------------------------------------
+		
+		var removeCandidates = [
+			"\\s",						// whitespaces
+			"-",						// dashes
+			"\\[0\\]",					// smth like 49 [0] 211 to 49 211
+			"\\(0\\)",					// smth like 49 (0) 211 to 49 211
+			"\\.",						// all points
+			"\\/",						// all points
+			"\\[",						// bracket [
+			"\\]",						// bracket ]
+			"\\(",						// bracket (
+			"\\)",						// bracket )
+			String.fromCharCode(0xa0)	// &nbsp;
+		];
+		var removeRegEx = new RegExp(removeCandidates.join('|'), 'g');
+		
+		_number = _number.toString().replace(removeRegEx, "");
+		
+		if(!_number.match(/^0|^\+/)) {
+			_number = natprefix + _number;
+		} else {
+			_number = _number.toString().replace(new RegExp(internationalPrefixes[natprefix].join('|')), "");
 		}
-		return _number;
-	}
 
-	function notifyViews(evnt) {
-		chrome.extension.getViews().forEach(function(view) {
-	        if(typeof(view['receiveMessage']) == 'function') {
-		        view.receiveMessage(evnt);
-	        }
-		});
-	}
-	
-	chrome.extension.onRequest.addListener(backgroundProcess.receiveRequest);
+		// -----------------------------------------------------			
 
-	doOnLoad();
+		var nationalPrefixCandidates = [
+			'^0([1-9]\\d+)'				// prefix like "0211 ..."
+		];
+
+		var nationalPrefixRegEx = new RegExp(nationalPrefixCandidates.join('|'));
+
+		_number = _number.toString().replace(nationalPrefixRegEx, natprefix + "$1");
+
+		// -----------------------------------------------------	
+
+		_number = _number.toString().replace(/[^\d]/g, "");
+		logBuffer.append("_niceNumber(): number after: "+_number);
+	} catch (ex) {
+	    	logBuffer.append("Error in _niceNumber(): "+ex);
+	}
+	return _number;
+}
+
+function notifyViews(evnt) {
+	chrome.extension.getViews().forEach(function(view) {
+        if(typeof(view['receiveMessage']) == 'function') {
+	        view.receiveMessage(evnt);
+        }
+	});
+}
+
+chrome.extension.onRequest.addListener(backgroundProcess.receiveRequest);
+
+doOnLoad();
