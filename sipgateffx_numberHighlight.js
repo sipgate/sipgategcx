@@ -275,7 +275,7 @@ var sipgateffx_hightlightnumber = {
 		this.regExp.nationalPrefix = new RegExp(internationalPrefixes[userCountryPrefix].join('|')+"|\\D", "g");		
 		if(userCountryPrefix == "1") { this.regExp.intBegin = /^[\(\[]?\+|^[\(\[]?00|^011/; }		
 
-		chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
+		chrome.runtime.sendMessage({action: 'getParsingOptions'}, function(res) {
 			if(res.color) click2dialBackground = res.color;
 			if(res.preview) previewDialog = (res.preview=="true");
 			if(res.parsing != "false") sipgateffx_hightlightnumber.startRendering();	
@@ -343,24 +343,24 @@ var sipgateffx_hightlightnumber = {
 			  content.innerHTML = xhr.responseText;
 			  if(systemArea == "team")
 			  {
-				  chrome.extension.sendRequest({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
+				  chrome.runtime.sendMessage({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
 			  } else {
 				  var label = document.getElementById("sipgateffx_sender-label");
 				  var element = document.getElementById("sipgateffx_sender-element");
 				  label.parentNode.removeChild(label);
 				  element.parentNode.removeChild(element);
 			  }
-			  if(typeof(number) != "undefined") {
+			  if(typeof(number) != "undefined" && number != null) {
 				  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = number;
 				  
-				  chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
+				  chrome.runtime.sendMessage({action: 'formatNumber', number: number}, function(formatted) {
 					  if(formatted && formatted[number] && formatted[number]['local']) {
 						  document.getElementById("sipgateffx_rect_number_sms_text-element").innerText = formatted[number]['local'];
 					  }
 				  }.bind(this));
 			  }
 
-			  if(typeof(text) != "undefined") {
+			  if(typeof(text) != "undefined" && text != null) {
 				  document.getElementById("sipgateffx_message").value = text.substring(0,160);
 				  this.bindMessageKeyUp();
 			  }
@@ -492,7 +492,7 @@ var sipgateffx_hightlightnumber = {
 			sender = document.getElementById("sipgateffx_sender").value;
 		}
 		
-		chrome.extension.sendRequest({action: 'sendSMS', number: number, text: text, sender: sender}, function() {
+		chrome.runtime.sendMessage({action: 'sendSMS', number: number, text: text, sender: sender}, function() {
 			this.sendingInProgress = true;
 			document.getElementById("sipgateffx_sendingInProgress_progressbar").removeAttribute("value");			
 			document.getElementById("sipgateffx_sendingInProgress_text").innerText = chrome.i18n.getMessage("smsSendingInProgress");
@@ -611,11 +611,11 @@ var sipgateffx_hightlightnumber = {
 				  return;
 			  }
 			  content.innerHTML = xhr.responseText;  
-			  chrome.extension.sendRequest({action: 'getExtensions'}, this.setExtensions.bind(this));
-			  if(typeof(number) != "undefined") {
+			  chrome.runtime.sendMessage({action: 'getExtensions'}, this.setExtensions.bind(this));
+			  if(typeof(number) != "undefined" && number != null) {
 				  document.getElementById("sipgateffx_call_number").value = number;
 				  
-				  chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
+				  chrome.runtime.sendMessage({action: 'formatNumber', number: number}, function(formatted) {
 					  if(formatted && formatted[number] && formatted[number]['local']) {
 						  document.getElementById("sipgateffx_call_number").value = formatted[number]['local'];
 					  }
@@ -669,7 +669,7 @@ var sipgateffx_hightlightnumber = {
 		
 		addClick2dialInfoBubble(this.callBubble, number);
 		this.removeCallBubbleFromDOM();
-	    chrome.extension.sendRequest({action: 'startClick2dial', number: number, extension: extension});		
+	    chrome.runtime.sendMessage({action: 'startClick2dial', number: number, extension: extension});		
 	},
 	
 	startRendering: function startRendering(contentDocument)
@@ -866,15 +866,20 @@ var sipgateffx_hightlightnumber = {
 	sipgateffxInitiateCall: function sipgateffxInitiateCall(target, number)
 	{
 		addClick2dialInfoBubble(target, number);    
-	    chrome.extension.sendRequest({action: 'startClick2dial', number: number});
+	    chrome.runtime.sendMessage({action: 'startClick2dial', number: number});
+	},
+	
+	checkIfLoggedIn: function() {
+		
 	}
 	
 };
 
 sipgateffx_hightlightnumber.init();
 
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	if(!sender.tab) return;
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	// only process requests from my extension
+	if(sender.id != chrome.runtime.id) return;
 	var response = {};
 	if(request.action) {
 		switch(request.action) {
@@ -902,6 +907,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		}
 	}
 	sendResponse(response);
+	return true;
 });
 
 function getPosition( oElement )

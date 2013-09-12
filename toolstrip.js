@@ -26,7 +26,7 @@ var SMSEditor = {
 	
 	init: function() {
 		this.senderNumberPref = localStorage.getItem('smsSender');
-		chrome.extension.sendRequest({action: 'getParsingOptions'}, function(res) {
+		chrome.runtime.sendMessage({action: 'getParsingOptions'}, function(res) {
 			if(res.systemArea) this.systemArea = res.systemArea;
 			if(res.httpServer) this.httpServer = res.httpServer;
 			
@@ -60,7 +60,7 @@ var SMSEditor = {
 			  content.innerHTML = xhr.responseText;
 			  if(this.systemArea == "team")
 			  {
-				  chrome.extension.sendRequest({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
+				  chrome.runtime.sendMessage({action: 'getVerifiedNumbers'}, this.setVerifiedNumbers.bind(this));
 			  } else {
 				  var label = document.getElementById("sipgateffx_sender-label");
 				  var element = document.getElementById("sipgateffx_sender-element");
@@ -188,7 +188,7 @@ var SMSEditor = {
 		var number = this.getNumber();
 		if(number != "" && number.length > 4)
 		{
-			chrome.extension.sendRequest({action: 'formatNumber', number: number}, function(formatted) {
+			chrome.runtime.sendMessage({action: 'formatNumber', number: number}, function(formatted) {
 				if(formatted && formatted[number] && formatted[number]['local']) {
 					$('sipgateffx_recipient').set('value', formatted[number]['local']);
 				}

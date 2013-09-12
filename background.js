@@ -121,20 +121,20 @@ var backgroundProcess = {
     },
     contextMenu: {
     	sendAsSMS: function(info, tab) {
-    		chrome.tabs.sendRequest(tab.id, {action:'sendTextAsSMS', text: info.selectionText});
+    		chrome.tabs.sendMessage(tab.id, {action:'sendTextAsSMS', text: info.selectionText});
     	},
     	sendTo: function(info, tab) {
-    		chrome.tabs.sendRequest(tab.id, {action:'sendSMSToText', number: info.selectionText});
+    		chrome.tabs.sendMessage(tab.id, {action:'sendSMSToText', number: info.selectionText});
     	},
     	callTo: function(info, tab) {
-    		chrome.tabs.sendRequest(tab.id, {action:'callText', number: info.selectionText});
+    		chrome.tabs.sendMessage(tab.id, {action:'callText', number: info.selectionText});
     	}
     },
     /**
      * function that receives requests from content pages
      */
 	receiveRequest: function(request, sender, sendResponse) {
-		if(!sender.tab) return;
+		if(!sender.tab) return false;
 		var response = {};
 		if(request.action) {
 			switch(request.action) {
@@ -169,7 +169,8 @@ var backgroundProcess = {
 					
 			}
 		}
-		if(response != null) { sendResponse(response); }
+		if(response != null) { sendResponse(response); return true; }
+		return true;
 	},
 	
 	logout: function() {
@@ -268,12 +269,12 @@ var backgroundProcess = {
 				this.currentSessionID = res.SessionID;
 
 				this.click2dialTabId = tabId;		
-				chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: chrome.i18n.getMessage("click2dial_status_WAIT")});
+				chrome.tabs.sendMessage(this.click2dialTabId, {action:'setClick2DialText', text: chrome.i18n.getMessage("click2dial_status_WAIT")});
 				chrome.browserAction.setIcon({path:"skin/c2d_wait.png"});		
 				this.getClick2DialStatus.delay(1000,this);
 			} else {
 				this.currentSessionID = null;
-				chrome.tabs.sendRequest(tabId, {action:'removeClick2DialBubble', text: chrome.i18n.getMessage("click2dial_status_FAILED")});
+				chrome.tabs.sendMessage(tabId, {action:'removeClick2DialBubble', text: chrome.i18n.getMessage("click2dial_status_FAILED")});
 				chrome.browserAction.setIcon({path:"skin/c2d_failed.png"});		
 			}
 		}.bind(this);
@@ -371,7 +372,7 @@ var backgroundProcess = {
 						text = chrome.i18n.getMessage(key);
 					}
 					
-					chrome.tabs.sendRequest(this.click2dialTabId, {action:'setClick2DialText', text: text, cssclass: state});
+					chrome.tabs.sendMessage(this.click2dialTabId, {action:'setClick2DialText', text: text, cssclass: state});
 					
 					logBuffer.append(text);
 					
@@ -382,7 +383,7 @@ var backgroundProcess = {
 						this.currentSessionTime = null;
 						
 						this.changeIcon.delay(5000, this, ['skin/icon_sipgate_active.gif']);
-						chrome.tabs.sendRequest(this.click2dialTabId, {action:'removeClick2DialBubble'});
+						chrome.tabs.sendMessage(this.click2dialTabId, {action:'removeClick2DialBubble'});
 
 						if (state == 'CALL_1_FAILED') {
 							alert(chrome.i18n.getMessage('click2dial_status_CALL_1_FAILED_detail'));
@@ -802,13 +803,13 @@ function sendSMS(number, text, sender, tabId)
 		logBuffer.append(res);
 		if (res.StatusCode && res.StatusCode == 200) {
 			if(tabId) {
-				chrome.tabs.sendRequest(tabId, {action:'smsSentSuccess'});
+				chrome.tabs.sendMessage(tabId, {action:'smsSentSuccess'});
 			} else {
 				notifyViews('smsSentSuccess');
 			}
 		} else {
 			if(tabId) {
-				chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
+				chrome.tabs.sendMessage(tabId, {action:'smsSentFailed'});
 			} else {
 				notifyViews('smsSentFailed');
 			}
@@ -817,7 +818,7 @@ function sendSMS(number, text, sender, tabId)
 	
 	var onFailure = function(res) {
 		if(tabId) {
-			chrome.tabs.sendRequest(tabId, {action:'smsSentFailed'});
+			chrome.tabs.sendMessage(tabId, {action:'smsSentFailed'});
 		} else {
 			notifyViews('smsSentFailed');
 		}
@@ -924,6 +925,6 @@ function notifyViews(evnt) {
 	});
 }
 
-chrome.extension.onRequest.addListener(backgroundProcess.receiveRequest);
+chrome.runtime.onMessage.addListener(backgroundProcess.receiveRequest);
 
 doOnLoad();
